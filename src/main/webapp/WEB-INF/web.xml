@@ -1,0 +1,57 @@
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+         http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+
+  <display-name>Archetype Created Web Application</display-name>
+
+  <servlet>
+    <servlet-name>CurrencyServlet</servlet-name>
+    <servlet-class>com.sergeineretin.controllers.CurrencyServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CurrencyServlet</servlet-name>
+    <url-pattern>/currency/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>CurrenciesServlet</servlet-name>
+    <servlet-class>com.sergeineretin.controllers.CurrenciesServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CurrenciesServlet</servlet-name>
+    <url-pattern>/currencies</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ExchangeRatesServlet</servlet-name>
+    <servlet-class>com.sergeineretin.controllers.ExchangeRatesServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExchangeRatesServlet</servlet-name>
+    <url-pattern>/exchangeRates</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ExchangeRateServlet</servlet-name>
+    <servlet-class>com.sergeineretin.controllers.ExchangeRateServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExchangeRateServlet</servlet-name>
+    <url-pattern>/exchangeRate/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ExchangeServlet</servlet-name>
+    <servlet-class>com.sergeineretin.controllers.ExchangeServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExchangeServlet</servlet-name>
+    <url-pattern>/exchange</url-pattern>
+  </servlet-mapping>
+
+
+</web-app>
+
+
