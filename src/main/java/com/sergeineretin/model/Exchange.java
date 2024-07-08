@@ -1,6 +1,5 @@
 package com.sergeineretin.model;
 
-import com.sergeineretin.dto.CurrencyDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,8 +12,8 @@ import java.math.BigDecimal;
 @Data
 @Builder
 public class Exchange {
-    private CurrencyDto baseCurrency;
-    private CurrencyDto targetCurrency;
+    private Currency baseCurrency;
+    private Currency targetCurrency;
     private BigDecimal rate;
     private BigDecimal amount;
     private BigDecimal convertedAmount;

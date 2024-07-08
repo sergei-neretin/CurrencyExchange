@@ -1,12 +1,12 @@
 package com.sergeineretin.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Splitter;
 import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.ExchangeRateException;
-import com.sergeineretin.dao.ExchangeRateDao;
+import com.sergeineretin.Utils;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.dto.ExchangeRateDto;
+import com.sergeineretin.services.ExchangeRateService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,13 +16,15 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.Map;
 
 @Slf4j
 public class ExchangeRateServlet extends HttpServlet {
-    ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
+    ExchangeRateService service;
+    public ExchangeRateServlet() {
+        this.service = new ExchangeRateService();
+    }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -41,75 +43,62 @@ public class ExchangeRateServlet extends HttpServlet {
                 String string = pathInfo.substring(1);
                 int mid = string.length() / 2;
                 String[] codes = { string.substring(0, mid), string.substring(mid) };
-
                 CurrencyDto baseCurrency = CurrencyDto.builder().code(codes[0]).build();
                 CurrencyDto targetCurrency = CurrencyDto.builder().code(codes[1]).build();
+
                 ExchangeRateDto exchangeRate = ExchangeRateDto.builder()
                         .baseCurrency(baseCurrency)
                         .targetCurrency(targetCurrency)
                         .build();
-                exchangeRate = exchangeRateDao.read(exchangeRate);
-                ObjectMapper objectMapper = new ObjectMapper();
-                String result = objectMapper.writeValueAsString(exchangeRate);
-                PrintWriter writer = resp.getWriter();
-                writer.println(result);
+                exchangeRate = service.findByName(exchangeRate);
+                Utils.write(resp, exchangeRate);
 
             } catch (ExchangeRateException e) {
-                resp.sendError(404, e.getMessage());
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+            } catch (DatabaseUnavailableException e) {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             }
         } else {
-            resp.sendError(400, "Currency code is missing from the address");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Currency code is missing from the address");
         }
     }
 
     @Override
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String pathInfo = req.getPathInfo();
-        String rateString = getParameterMap(req).get("rate");
+        try {
+            String pathInfo = req.getPathInfo();
+            String rateString = getParameterMap(req).get("rate");
+            BigDecimal rate = new BigDecimal(rateString);
+            String string = pathInfo.substring(1);
+            int mid = string.length() / 2;
+            String[] codes = { string.substring(0, mid), string.substring(mid) };
+            CurrencyDto baseCurrency = CurrencyDto.builder().code(codes[0]).build();
+            CurrencyDto targetCurrency = CurrencyDto.builder().code(codes[1]).build();
+            ExchangeRateDto exchangeRate = ExchangeRateDto.builder()
+                    .baseCurrency(baseCurrency)
+                    .targetCurrency(targetCurrency)
+                    .rate(rate)
+                    .build();
 
-        if (rateString != null) {
-            try {
-                BigDecimal rate = new BigDecimal(rateString);
-                String string = pathInfo.substring(1);
-                int mid = string.length() / 2;
-                String[] codes = { string.substring(0, mid), string.substring(mid) };
-                CurrencyDto baseCurrency = CurrencyDto.builder().code(codes[0]).build();
-                CurrencyDto targetCurrency = CurrencyDto.builder().code(codes[1]).build();
-                ExchangeRateDto exchangeRate = ExchangeRateDto.builder()
-                        .baseCurrency(baseCurrency)
-                        .targetCurrency(targetCurrency)
-                        .rate(rate)
-                        .build();
+            ExchangeRateDto result  = service.update(exchangeRate);
+            Utils.write(resp, result);
 
-                exchangeRate = exchangeRateDao.update(exchangeRate);
-                ObjectMapper objectMapper = new ObjectMapper();
-                String result = objectMapper.writeValueAsString(exchangeRate);
-                PrintWriter writer = resp.getWriter();
-                writer.println(result);
-
-            } catch (DatabaseUnavailableException e) {
-                resp.sendError(500, e.getMessage());
-            } catch (ExchangeRateException e) {
-                resp.sendError(404, e.getMessage());
-            }
-        } else {
-            resp.sendError(400, "Required form field is missing");
+        } catch (DatabaseUnavailableException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        } catch (ExchangeRateException e) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        } catch (NullPointerException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Required form field is missing");
         }
     }
 
     public static Map<String, String> getParameterMap(HttpServletRequest request) {
-
         BufferedReader br = null;
         Map<String, String> dataMap = null;
-
         try {
-
-            InputStreamReader reader = new InputStreamReader(
-                    request.getInputStream());
+            InputStreamReader reader = new InputStreamReader(request.getInputStream());
             br = new BufferedReader(reader);
-
             String data = br.readLine();
-
             dataMap = Splitter.on('&')
                     .trimResults()
                     .withKeyValueSeparator(
@@ -117,7 +106,6 @@ public class ExchangeRateServlet extends HttpServlet {
                                     .limit(2)
                                     .trimResults())
                     .split(data);
-
             return dataMap;
         } catch (IOException ex) {
             //log(Utils.class.getName()).log(Level.SEVERE, null, ex);
@@ -130,7 +118,6 @@ public class ExchangeRateServlet extends HttpServlet {
                 }
             }
         }
-
         return dataMap;
     }
 }

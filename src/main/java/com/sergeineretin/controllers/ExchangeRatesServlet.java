@@ -1,31 +1,30 @@
 package com.sergeineretin.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sergeineretin.CurrencyException;
 import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.ExchangeRateException;
-import com.sergeineretin.dao.ExchangeRateDao;
+import com.sergeineretin.Utils;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.dto.ExchangeRateDto;
+import com.sergeineretin.services.ExchangeRateService;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.List;
 
 public class ExchangeRatesServlet extends HttpServlet {
-    ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
+    private final ExchangeRateService service;
+    public ExchangeRatesServlet() {
+        service = new ExchangeRateService();
+    }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            List<ExchangeRateDto> exchangeRates = exchangeRateDao.read();
-            ObjectMapper objectMapper = new ObjectMapper();
-            String result = objectMapper.writeValueAsString(exchangeRates);
-            PrintWriter writer = resp.getWriter();
-            writer.println(result);
+            List<ExchangeRateDto> exchangeRates = service.findAll();
+            Utils.write(resp, exchangeRates);
         } catch (DatabaseUnavailableException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -42,19 +41,13 @@ public class ExchangeRatesServlet extends HttpServlet {
                 BigDecimal rate = new BigDecimal(rateString);
                 CurrencyDto baseCurrency = CurrencyDto.builder().code(baseCurrencyCode).build();
                 CurrencyDto targetCurrency = CurrencyDto.builder().code(targetCurrencyCode).build();
-
                 ExchangeRateDto exchangeRateDto = ExchangeRateDto.builder()
                         .baseCurrency(baseCurrency)
                         .targetCurrency(targetCurrency)
                         .rate(rate)
                         .build();
-
-                ExchangeRateDto exchangeRate  = exchangeRateDao.create(exchangeRateDto);
-
-                ObjectMapper objectMapper = new ObjectMapper();
-                String result = objectMapper.writeValueAsString(exchangeRate);
-                PrintWriter writer = resp.getWriter();
-                writer.println(result);
+                ExchangeRateDto exchangeRate  = service.create(exchangeRateDto);
+                Utils.write(resp, exchangeRate);
                 resp.setStatus(HttpServletResponse.SC_CREATED);
             } catch (DatabaseUnavailableException e) {
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
@@ -64,7 +57,7 @@ public class ExchangeRatesServlet extends HttpServlet {
                 resp.sendError(HttpServletResponse.SC_CONFLICT, e.getMessage());
             }
         } else {
-            resp.sendError(400, "Required form field is missing");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Required form field is missing");
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.sergeineretin.model;
 
-import com.sergeineretin.dto.CurrencyDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +13,7 @@ import java.math.BigDecimal;
 @Builder
 public class ExchangeRate {
     Integer ID;
-    CurrencyDto baseCurrency;
-    CurrencyDto targetCurrency;
+    Currency baseCurrency;
+    Currency targetCurrency;
     BigDecimal rate;
 }

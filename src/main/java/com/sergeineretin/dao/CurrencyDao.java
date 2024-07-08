@@ -3,7 +3,7 @@ package com.sergeineretin.dao;
 import com.sergeineretin.CurrencyException;
 import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.Utils;
-import com.sergeineretin.dto.CurrencyDto;
+import com.sergeineretin.model.Currency;
 import com.sergeineretin.services.CurrencyService;
 
 import java.sql.*;
@@ -20,44 +20,50 @@ public class CurrencyDao {
         }
     }
 
-    public CurrencyDto findByName(String Code) {
+    public Currency findByName(String Code) {
         try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl())) {
             Statement stmt = conn.createStatement();
-            String sql = "SELECT * FROM Currencies WHERE Code = " + "'" + Code + "';";
+            String sql = "SELECT * FROM Currencies WHERE Code = '" + Code + "';";
             ResultSet rs = stmt.executeQuery(sql);
             if (rs.next()) {
-                CurrencyDto build = CurrencyService.convertResultSet(rs);
+                Currency result = CurrencyService.convertResultSet(rs);
                 rs.close();
-                return build;
+                return result;
             } else {
-                throw new CurrencyException("Currency not found", new Throwable());
+                return null;
+            }
+
+        } catch (SQLException e) {
+            throw new DatabaseUnavailableException(e.getMessage(), e);
+        }
+    }
+    public Currency findById(Long id) {
+        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl())) {
+            Statement stmt = conn.createStatement();
+            String sql = "SELECT * FROM Currencies WHERE ID = " + id + ";";
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                Currency result = CurrencyService.convertResultSet(rs);
+                rs.close();
+                return result;
+            } else {
+                return null;
             }
         } catch (SQLException e) {
             throw new DatabaseUnavailableException(e.getMessage(), e);
         }
     }
-    public CurrencyDto findById(Long id) {
-        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl())) {
-            Statement stmt = conn.createStatement();
-            String sql = "SELECT * FROM Currencies WHERE ID = " + id + ";";
-            ResultSet rs = stmt.executeQuery(sql);
-            CurrencyDto result = CurrencyService.convertResultSet(rs);
-            rs.close();
-            return result;
-        } catch (SQLException e) {
-            throw new DatabaseUnavailableException(e.getMessage(), e);
-        }
-    }
-    public List<CurrencyDto> findAll() {
+    public List<Currency> findAll() {
         try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl())) {
             Statement stmt = conn.createStatement();
             String sql = "SELECT * FROM Currencies;";
             ResultSet rs = stmt.executeQuery(sql);
-            List<CurrencyDto> result = new LinkedList<>();
-            do {
-                CurrencyDto currencyDto = CurrencyService.convertResultSet(rs);
+            List<Currency> result = new LinkedList<>();
+            while (rs.next()) {
+                Currency currencyDto = CurrencyService.convertResultSet(rs);
                 result.add(currencyDto);
-            } while (rs.next());
+            }
+            System.out.println(result);
             rs.close();
             return result;
         } catch (SQLException e) {
@@ -65,15 +71,14 @@ public class CurrencyDao {
         }
     }
 
-    public CurrencyDto create(CurrencyDto currencyDto) {
+    public void create(Currency currencyDto) {
         try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl())) {
             Statement stmt = conn.createStatement();
             String sql = "INSERT INTO Currencies(FullName, Code, Sign) VALUES " +
                     "('" + currencyDto.getFullName() + "', '" + currencyDto.getCode() + "', '" + currencyDto.getSign() + "');";
             stmt.executeUpdate(sql);
-            return findByName(currencyDto.getCode());
         } catch (SQLException e) {
-            if (e.getMessage().contains("Currencies_Code_IDX")) {
+            if (e.getMessage().contains("UNIQUE")) {
                 throw new CurrencyException("Currency with this code already exists", new Throwable());
             }
             throw new DatabaseUnavailableException("Database is unavailable", e);

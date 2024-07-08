@@ -1,21 +1,23 @@
 package com.sergeineretin.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sergeineretin.dao.ExchangeDao;
+import com.sergeineretin.ExchangeRateException;
+import com.sergeineretin.Utils;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.dto.ExchangeDto;
+import com.sergeineretin.services.ExchangeService;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 
 public class ExchangeServlet extends HttpServlet {
-    ExchangeDao exchangeDao = new ExchangeDao();
-
+    ExchangeService service;
+    public ExchangeServlet() {
+        service = new ExchangeService();
+    }
     @SneakyThrows
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
@@ -23,9 +25,9 @@ public class ExchangeServlet extends HttpServlet {
         String targetCurrencyCode = req.getParameter("to");
         BigDecimal amount = new BigDecimal(req.getParameter("amount"));
 
+        System.out.println("[pweklf3orkgwe");
         CurrencyDto baseCurrency = CurrencyDto.builder().code(baseCurrencyCode).build();
         CurrencyDto targetCurrency = CurrencyDto.builder().code(targetCurrencyCode).build();
-
         ExchangeDto exchange = ExchangeDto.builder()
                 .baseCurrency(baseCurrency)
                 .targetCurrency(targetCurrency)
@@ -33,14 +35,10 @@ public class ExchangeServlet extends HttpServlet {
                 .build();
 
         try {
-            ExchangeDto result = exchangeDao.read(exchange);
-            ObjectMapper objectMapper = new ObjectMapper();
-            String string = objectMapper.writeValueAsString(result);
-            PrintWriter writer = resp.getWriter();
-            writer.println(string);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            ExchangeDto result = service.get(exchange);
+            Utils.write(resp, result);
+        } catch (ExchangeRateException e) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         }
-
     }
 }
