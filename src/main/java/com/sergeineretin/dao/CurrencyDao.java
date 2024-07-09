@@ -20,11 +20,12 @@ public class CurrencyDao {
         }
     }
 
-    public Currency findByName(String Code) {
-        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl())) {
-            Statement stmt = conn.createStatement();
-            String sql = "SELECT * FROM Currencies WHERE Code = '" + Code + "';";
-            ResultSet rs = stmt.executeQuery(sql);
+    public Currency findByName(String code) {
+        String sql = "SELECT * FROM Currencies WHERE Code = ?;";
+        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl());
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, code);
+            ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 Currency result = CurrencyService.convertResultSet(rs);
                 rs.close();
@@ -32,16 +33,16 @@ public class CurrencyDao {
             } else {
                 return null;
             }
-
         } catch (SQLException e) {
             throw new DatabaseUnavailableException(e.getMessage(), e);
         }
     }
     public Currency findById(Long id) {
-        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl())) {
-            Statement stmt = conn.createStatement();
-            String sql = "SELECT * FROM Currencies WHERE ID = " + id + ";";
-            ResultSet rs = stmt.executeQuery(sql);
+        String sql = "SELECT * FROM Currencies WHERE ID = ?;";
+        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl());
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, id);
+            ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 Currency result = CurrencyService.convertResultSet(rs);
                 rs.close();
@@ -54,9 +55,9 @@ public class CurrencyDao {
         }
     }
     public List<Currency> findAll() {
-        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl())) {
-            Statement stmt = conn.createStatement();
-            String sql = "SELECT * FROM Currencies;";
+        String sql = "SELECT * FROM Currencies;";
+        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl());
+            Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
             List<Currency> result = new LinkedList<>();
             while (rs.next()) {
@@ -71,12 +72,14 @@ public class CurrencyDao {
         }
     }
 
-    public void create(Currency currencyDto) {
-        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl())) {
-            Statement stmt = conn.createStatement();
-            String sql = "INSERT INTO Currencies(FullName, Code, Sign) VALUES " +
-                    "('" + currencyDto.getFullName() + "', '" + currencyDto.getCode() + "', '" + currencyDto.getSign() + "');";
-            stmt.executeUpdate(sql);
+    public void create(Currency currency) {
+        String sql = "INSERT INTO Currencies(FullName, Code, Sign) VALUES ( ?, ?, ?);";
+        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl());
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, currency.getFullName());
+            pstmt.setString(2, currency.getCode());
+            pstmt.setString(3, currency.getSign());
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             if (e.getMessage().contains("UNIQUE")) {
                 throw new CurrencyException("Currency with this code already exists", new Throwable());
