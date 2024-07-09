@@ -1,9 +1,6 @@
 package com.sergeineretin.dao;
 
-import com.sergeineretin.CurrencyException;
-import com.sergeineretin.DatabaseUnavailableException;
-import com.sergeineretin.ExchangeRateException;
-import com.sergeineretin.Utils;
+import com.sergeineretin.*;
 import com.sergeineretin.model.ExchangeRate;
 import com.sergeineretin.services.ExchangeRateService;
 
@@ -26,7 +23,7 @@ public class ExchangeRateDao {
                 "INNER JOIN Currencies c ON er.BaseCurrencyId = c.ID \n" +
                 "INNER JOIN Currencies c2 ON er.TargetCurrencyId = c2.ID;";
 
-        try (Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl());
+        try (Connection conn = C3p0DataSource.getConnection();
              Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
             List<ExchangeRate> result = new LinkedList<>();
@@ -59,7 +56,7 @@ public class ExchangeRateDao {
                 "    Currencies c ON er.BaseCurrencyID = c.ID AND c.Code = ?\n" +
                 "INNER JOIN \n" +
                 "    Currencies c2 ON er.TargetCurrencyID = c2.ID AND c2.Code = ?;\n";
-        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl());
+        try(Connection conn = C3p0DataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, exchangeRate.getBaseCurrency().getCode());
             pstmt.setString(2, exchangeRate.getTargetCurrency().getCode());
@@ -80,7 +77,7 @@ public class ExchangeRateDao {
                 "        (SELECT ID FROM Currencies WHERE Code = ?), \n" +
                 "        ?);";
 
-        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl());
+        try(Connection conn = C3p0DataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, exchangeRate.getBaseCurrency().getCode());
             pstmt.setString(2, exchangeRate.getTargetCurrency().getCode());
@@ -101,7 +98,7 @@ public class ExchangeRateDao {
         String sql = "UPDATE ExchangeRates SET Rate = ? WHERE\n" +
                 "BaseCurrencyId = (SELECT ID from Currencies c WHERE c.Code = ?)\n" +
                 "AND TargetCurrencyId = (SELECT ID from Currencies c2 WHERE c2.Code = ?);";
-        try(Connection conn = DriverManager.getConnection(Utils.getDatabaseUrl());
+        try(Connection conn = C3p0DataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setBigDecimal(1, exchangeRate.getRate());
             pstmt.setString(2, exchangeRate.getBaseCurrency().getCode());

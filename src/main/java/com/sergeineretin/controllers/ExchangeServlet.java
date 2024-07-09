@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 
 public class ExchangeServlet extends HttpServlet {
     ExchangeService service;
@@ -25,7 +24,6 @@ public class ExchangeServlet extends HttpServlet {
         String targetCurrencyCode = req.getParameter("to");
         BigDecimal amount = new BigDecimal(req.getParameter("amount"));
 
-        System.out.println("[pweklf3orkgwe");
         CurrencyDto baseCurrency = CurrencyDto.builder().code(baseCurrencyCode).build();
         CurrencyDto targetCurrency = CurrencyDto.builder().code(targetCurrencyCode).build();
         ExchangeDto exchange = ExchangeDto.builder()
