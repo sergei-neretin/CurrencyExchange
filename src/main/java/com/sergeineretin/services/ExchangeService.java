@@ -65,8 +65,4 @@ public class ExchangeService {
             return null;
         }
     }
-    private ExchangeRate getUSDBasedExchangeRate(Currency targetCurrency) {
-        Currency USD = Currency.builder().code("USD").build();
-        return ExchangeRate.builder().baseCurrency(USD).targetCurrency(targetCurrency).build();
-    }
 }
