@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CurrencyServlet extends HttpServlet {
     CurrencyService service;
@@ -17,19 +19,27 @@ public class CurrencyServlet extends HttpServlet {
     }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String pathInfo = req.getPathInfo();
-        if (pathInfo != null) {
-            try {
-                String code = pathInfo.substring(1);
-                CurrencyDto currency = service.findByName(code);
-                Utils.write(resp, currency);
-            } catch (CurrencyException e) {
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
-            } catch (DatabaseUnavailableException e) {
-                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-            }
+        try {
+            String code = getFormFields(req);
+            CurrencyDto currency = service.findByName(code);
+            Utils.write(resp, currency);
+        } catch (CurrencyException e) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        } catch (DatabaseUnavailableException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        } catch (RuntimeException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    private String getFormFields(HttpServletRequest req) {
+        String codeString = req.getPathInfo().substring(1);
+        Pattern pattern = Pattern.compile("^[A-Z]{3}$");
+        Matcher matcher = pattern.matcher(codeString);
+        if (matcher.find()) {
+            return codeString;
         } else {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Currency code is missing from the address");
+            throw new RuntimeException("Currency code is invalid");
         }
     }
 }
