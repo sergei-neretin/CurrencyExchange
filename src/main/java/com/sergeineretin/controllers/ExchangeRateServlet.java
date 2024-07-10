@@ -4,9 +4,11 @@ import com.google.common.base.Splitter;
 import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.ExchangeRateException;
 import com.sergeineretin.Utils;
+import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.dto.ExchangeRateDto;
 import com.sergeineretin.services.ExchangeRateService;
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,8 +26,11 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ExchangeRateServlet extends HttpServlet {
     ExchangeRateService service;
-    public ExchangeRateServlet() {
-        this.service = new ExchangeRateService();
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        ExchangeRateDao exchangeRateDao = (ExchangeRateDao) config.getServletContext().getAttribute("exchangeRateDao");
+        service = new ExchangeRateService(exchangeRateDao);
     }
 
     @Override

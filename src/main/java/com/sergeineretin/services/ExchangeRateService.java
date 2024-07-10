@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 
 public class ExchangeRateService {
     private final ExchangeRateDao exchangeRateDao;
-    public ExchangeRateService() {
-        exchangeRateDao = new ExchangeRateDao();
+    public ExchangeRateService(ExchangeRateDao exchangeRateDao) {
+        this.exchangeRateDao = exchangeRateDao;
     }
     public static ExchangeRate convertResultSet(ResultSet rs) throws SQLException {
         Currency baseCurrency = new Currency(

@@ -3,8 +3,11 @@ package com.sergeineretin.controllers;
 import com.sergeineretin.CurrencyException;
 import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.Utils;
+import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.services.CurrencyService;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,7 +16,13 @@ import java.io.IOException;
 import java.util.List;
 
 public class CurrenciesServlet extends HttpServlet {
-    private final CurrencyService service = new CurrencyService();
+    private CurrencyService service;
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        CurrencyDao currencyDao = (CurrencyDao) config.getServletContext().getAttribute("currencyDao");
+        service = new CurrencyService(currencyDao);
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {

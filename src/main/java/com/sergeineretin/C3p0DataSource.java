@@ -4,6 +4,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import java.beans.PropertyVetoException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class C3p0DataSource {
@@ -25,5 +26,16 @@ public class C3p0DataSource {
         return cpds.getConnection();
     }
 
+    public static void close() {
+        if (cpds != null) {
+            cpds.close();
+        }
+
+        try {
+            DriverManager.deregisterDriver(DriverManager.getDriver("jdbc:sqlite:" + Utils.getDatabasePath()));
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
     private C3p0DataSource(){}
 }

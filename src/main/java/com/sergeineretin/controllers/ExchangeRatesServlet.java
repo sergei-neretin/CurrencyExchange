@@ -4,9 +4,12 @@ import com.sergeineretin.CurrencyException;
 import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.ExchangeRateException;
 import com.sergeineretin.Utils;
+import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.dto.ExchangeRateDto;
 import com.sergeineretin.services.ExchangeRateService;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,10 +19,14 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class ExchangeRatesServlet extends HttpServlet {
-    private final ExchangeRateService service;
-    public ExchangeRatesServlet() {
-        service = new ExchangeRateService();
+    ExchangeRateService service;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        ExchangeRateDao exchangeRateDao = (ExchangeRateDao) config.getServletContext().getAttribute("exchangeRateDao");
+        service = new ExchangeRateService(exchangeRateDao);
     }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {

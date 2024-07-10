@@ -2,9 +2,13 @@ package com.sergeineretin.controllers;
 
 import com.sergeineretin.ExchangeRateException;
 import com.sergeineretin.Utils;
+import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.dto.ExchangeDto;
+import com.sergeineretin.services.ExchangeRateService;
 import com.sergeineretin.services.ExchangeService;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,8 +18,11 @@ import java.math.BigDecimal;
 
 public class ExchangeServlet extends HttpServlet {
     ExchangeService service;
-    public ExchangeServlet() {
-        service = new ExchangeService();
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        ExchangeRateDao exchangeRateDao = (ExchangeRateDao) config.getServletContext().getAttribute("exchangeRateDao");
+        service = new ExchangeService(exchangeRateDao);
     }
     @SneakyThrows
     @Override

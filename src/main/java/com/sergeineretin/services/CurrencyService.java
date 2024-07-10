@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 public class CurrencyService {
     private final CurrencyDao currencyDao;
-    public CurrencyService() {
-        currencyDao = new CurrencyDao();
+    public CurrencyService(CurrencyDao currencyDao) {
+        this.currencyDao = currencyDao;
     }
 
     public static Currency convertResultSet(ResultSet rs) throws SQLException {

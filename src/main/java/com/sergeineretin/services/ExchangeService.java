@@ -11,8 +11,8 @@ import java.math.RoundingMode;
 
 public class ExchangeService {
     ExchangeRateDao exchangeRateDao;
-    public ExchangeService() {
-        exchangeRateDao = new ExchangeRateDao();
+    public ExchangeService(ExchangeRateDao exchangeRateDao) {
+        this.exchangeRateDao = exchangeRateDao;
     }
     public ExchangeDto get(ExchangeDto exchangeDto) {
         String baseCode = exchangeDto.getBaseCurrency().getCode();
@@ -26,7 +26,6 @@ public class ExchangeService {
             result = getTransitive(baseCode, targetCode);
         }
         if (result != null) {
-
 
             return new ExchangeDto(
                     CurrencyConverter.convertToDto(result.getBaseCurrency()),
