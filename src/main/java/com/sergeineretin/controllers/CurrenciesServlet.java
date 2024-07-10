@@ -38,8 +38,8 @@ public class CurrenciesServlet extends HttpServlet {
                         .code(code)
                         .sign(sign)
                         .build();
-                CurrencyDto currency = service.create(currencyDto);
-                Utils.write(resp, currency);
+                currencyDto = service.create(currencyDto);
+                Utils.write(resp, currencyDto);
                 resp.setStatus(HttpServletResponse.SC_CREATED);
             } catch (CurrencyException e) {
                 resp.sendError(HttpServletResponse.SC_CONFLICT, e.getMessage());

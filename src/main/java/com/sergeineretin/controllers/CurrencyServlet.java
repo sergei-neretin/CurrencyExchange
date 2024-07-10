@@ -21,8 +21,7 @@ public class CurrencyServlet extends HttpServlet {
         if (pathInfo != null) {
             try {
                 String code = pathInfo.substring(1);
-                CurrencyDto dto = CurrencyDto.builder().code(code).build();
-                CurrencyDto currency = service.findByName(dto);
+                CurrencyDto currency = service.findByName(code);
                 Utils.write(resp, currency);
             } catch (CurrencyException e) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());

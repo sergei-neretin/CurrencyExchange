@@ -43,14 +43,7 @@ public class ExchangeRateServlet extends HttpServlet {
                 String string = pathInfo.substring(1);
                 int mid = string.length() / 2;
                 String[] codes = { string.substring(0, mid), string.substring(mid) };
-                CurrencyDto baseCurrency = CurrencyDto.builder().code(codes[0]).build();
-                CurrencyDto targetCurrency = CurrencyDto.builder().code(codes[1]).build();
-
-                ExchangeRateDto exchangeRate = ExchangeRateDto.builder()
-                        .baseCurrency(baseCurrency)
-                        .targetCurrency(targetCurrency)
-                        .build();
-                exchangeRate = service.findByName(exchangeRate);
+                ExchangeRateDto exchangeRate = service.findByName(codes[0], codes[1]);
                 Utils.write(resp, exchangeRate);
 
             } catch (ExchangeRateException e) {

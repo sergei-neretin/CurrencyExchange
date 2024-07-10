@@ -2,7 +2,6 @@ package com.sergeineretin.services;
 
 import com.sergeineretin.ExchangeRateException;
 import com.sergeineretin.converters.CurrencyConverter;
-import com.sergeineretin.converters.ExchangeRateConverter;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.ExchangeDto;
 import com.sergeineretin.model.Currency;
@@ -17,13 +16,15 @@ public class ExchangeService {
         exchangeRateDao = new ExchangeRateDao();
     }
     public ExchangeDto get(ExchangeDto exchangeDto) {
-        ExchangeRate exchangeRate = ExchangeRateConverter.convertToEntity(exchangeDto);
-        ExchangeRate result = exchangeRateDao.findByName(exchangeRate);
+        String baseCode = exchangeDto.getBaseCurrency().getCode();
+        String targetCode = exchangeDto.getTargetCurrency().getCode();
+
+        ExchangeRate result = exchangeRateDao.findByName(baseCode, targetCode);
         if (result == null) {
-            result = getInverse(exchangeRate);
+            result = getInverse(baseCode, targetCode);
         }
         if (result == null) {
-            result = getTransitive(exchangeRate);
+            result = getTransitive(baseCode, targetCode);
         }
         if (result != null) {
 
@@ -39,11 +40,8 @@ public class ExchangeService {
         }
     }
 
-    private ExchangeRate getInverse(ExchangeRate exchangeRate) {
-        ExchangeRate inverseExchangeRate = ExchangeRate.builder()
-                .baseCurrency(exchangeRate.getTargetCurrency())
-                .targetCurrency(exchangeRate.getBaseCurrency()).build();
-        ExchangeRate result = exchangeRateDao.findByName(inverseExchangeRate);
+    private ExchangeRate getInverse(String baseCode, String targetCode) {
+        ExchangeRate result = exchangeRateDao.findByName(targetCode, baseCode);
         if (result != null) {
             return new ExchangeRate(
                     result.getID(),
@@ -54,9 +52,9 @@ public class ExchangeService {
             return null;
         }
     }
-    private ExchangeRate getTransitive(ExchangeRate exchangeRate) {
-        ExchangeRate exchangeRate1 = exchangeRateDao.findByName(getUSDBasedExchangeRate(exchangeRate.getBaseCurrency()));
-        ExchangeRate exchangeRate2 = exchangeRateDao.findByName(getUSDBasedExchangeRate(exchangeRate.getTargetCurrency()));
+    private ExchangeRate getTransitive(String baseCode, String targetCode) {
+        ExchangeRate exchangeRate1 = exchangeRateDao.findByName("USD", baseCode);
+        ExchangeRate exchangeRate2 = exchangeRateDao.findByName("USD", targetCode);
         if (exchangeRate1 != null && exchangeRate2 != null) {
             return ExchangeRate.builder()
                     .baseCurrency(exchangeRate1.getTargetCurrency())

@@ -47,9 +47,8 @@ public class ExchangeRateService {
                 e.getRate())).collect(Collectors.toList());
     }
 
-    public ExchangeRateDto findByName(ExchangeRateDto exchangeRateDto) {
-        ExchangeRate exchangeRate = ExchangeRateConverter.convertToEntity(exchangeRateDto);
-        ExchangeRate result = exchangeRateDao.findByName(exchangeRate);
+    public ExchangeRateDto findByName(String baseCode, String targetCode) {
+        ExchangeRate result = exchangeRateDao.findByName(baseCode, targetCode);
         if (result == null) {
             throw new ExchangeRateException("Exchange rate not found", new Throwable());
         }
@@ -59,15 +58,19 @@ public class ExchangeRateService {
     public ExchangeRateDto create(ExchangeRateDto exchangeRateDto) {
         ExchangeRate exchangeRate = ExchangeRateConverter.convertToEntity(exchangeRateDto);
         exchangeRateDao.create(exchangeRate);
-        ExchangeRate entity = exchangeRateDao.findByName(exchangeRate);
+        ExchangeRate entity = exchangeRateDao.findByName(
+                exchangeRate.getBaseCurrency().getCode(),
+                exchangeRate.getTargetCurrency().getCode());
         return ExchangeRateConverter.convertToDto(entity);
     }
 
     public ExchangeRateDto update(ExchangeRateDto exchangeRateDto) {
         ExchangeRate exchangeRate = ExchangeRateConverter.convertToEntity(exchangeRateDto);
-        if (exchangeRateDao.findByName(exchangeRate) != null) {
+        String baseCode = exchangeRate.getBaseCurrency().getCode();
+        String targetCode = exchangeRate.getTargetCurrency().getCode();
+        if (exchangeRateDao.findByName(baseCode, targetCode) != null) {
             exchangeRateDao.update(exchangeRate);
-            ExchangeRate entity = exchangeRateDao.findByName(exchangeRate);
+            ExchangeRate entity = exchangeRateDao.findByName(baseCode, targetCode);
             return ExchangeRateConverter.convertToDto(entity);
         } else {
             throw new ExchangeRateException("Currency pair is absent in the database", new Throwable());

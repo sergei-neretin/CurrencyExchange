@@ -38,7 +38,7 @@ public class ExchangeRateDao {
         }
     }
 
-    public ExchangeRate findByName(ExchangeRate exchangeRate){
+    public ExchangeRate findByName(String baseCode, String targetCode){
         String sql = "SELECT \n" +
                 "    er.ID, \n" +
                 "    er.Rate, \n" +
@@ -58,8 +58,8 @@ public class ExchangeRateDao {
                 "    Currencies c2 ON er.TargetCurrencyID = c2.ID AND c2.Code = ?;\n";
         try(Connection conn = C3p0DataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, exchangeRate.getBaseCurrency().getCode());
-            pstmt.setString(2, exchangeRate.getTargetCurrency().getCode());
+            pstmt.setString(1, baseCode);
+            pstmt.setString(2, targetCode);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 return ExchangeRateService.convertResultSet(rs);

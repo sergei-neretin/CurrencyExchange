@@ -41,8 +41,8 @@ public class CurrencyService {
         return CurrencyConverter.convertToDto(entity);
     }
 
-    public CurrencyDto findByName(CurrencyDto currencyDto) {
-        Currency entity = currencyDao.findByName(currencyDto.getCode());
+    public CurrencyDto findByName(String code) {
+        Currency entity = currencyDao.findByName(code);
         if (entity != null) {
             return CurrencyConverter.convertToDto(entity);
         } else {
