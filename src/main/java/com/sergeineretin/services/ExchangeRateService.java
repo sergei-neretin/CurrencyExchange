@@ -7,6 +7,7 @@ import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.ExchangeRateDto;
 import com.sergeineretin.model.Currency;
 import com.sergeineretin.model.ExchangeRate;
+import com.sergeineretin.model.NullExchangeRate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -49,7 +50,7 @@ public class ExchangeRateService {
 
     public ExchangeRateDto findByName(String baseCode, String targetCode) {
         ExchangeRate result = exchangeRateDao.findByName(baseCode, targetCode);
-        if (result == null) {
+        if (result instanceof NullExchangeRate) {
             throw new ExchangeRateException("Exchange rate not found", new Throwable());
         }
         return ExchangeRateConverter.convertToDto(result);

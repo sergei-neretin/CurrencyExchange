@@ -8,7 +8,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class C3p0DataSource {
-    private static ComboPooledDataSource cpds = new ComboPooledDataSource();
+    private static final ComboPooledDataSource cpds = new ComboPooledDataSource();
 
     static {
         try {

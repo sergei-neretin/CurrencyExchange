@@ -4,6 +4,7 @@ import com.sergeineretin.C3p0DataSource;
 import com.sergeineretin.CurrencyException;
 import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.model.Currency;
+import com.sergeineretin.model.NullCurrency;
 import com.sergeineretin.services.CurrencyService;
 
 import java.sql.*;
@@ -31,7 +32,7 @@ public class CurrencyDao {
                 rs.close();
                 return result;
             } else {
-                return null;
+                return new NullCurrency();
             }
         } catch (SQLException e) {
             throw new DatabaseUnavailableException(e.getMessage(), e);
@@ -48,7 +49,7 @@ public class CurrencyDao {
                 rs.close();
                 return result;
             } else {
-                return null;
+                return new NullCurrency();
             }
         } catch (SQLException e) {
             throw new DatabaseUnavailableException(e.getMessage(), e);

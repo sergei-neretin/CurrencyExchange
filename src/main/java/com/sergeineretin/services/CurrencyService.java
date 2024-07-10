@@ -6,6 +6,7 @@ import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.model.Currency;
+import com.sergeineretin.model.NullCurrency;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,7 +44,7 @@ public class CurrencyService {
 
     public CurrencyDto findByName(String code) {
         Currency entity = currencyDao.findByName(code);
-        if (entity != null) {
+        if (!(entity instanceof NullCurrency)) {
             return CurrencyConverter.convertToDto(entity);
         } else {
             throw new CurrencyException("Currency not found", new Throwable());

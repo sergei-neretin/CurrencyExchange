@@ -2,6 +2,7 @@ package com.sergeineretin.dao;
 
 import com.sergeineretin.*;
 import com.sergeineretin.model.ExchangeRate;
+import com.sergeineretin.model.NullExchangeRate;
 import com.sergeineretin.services.ExchangeRateService;
 
 import java.sql.*;
@@ -64,7 +65,7 @@ public class ExchangeRateDao {
             if (rs.next()) {
                 return ExchangeRateService.convertResultSet(rs);
             } else {
-                return null;
+                return new NullExchangeRate();
             }
         } catch (SQLException e) {
             throw new DatabaseUnavailableException("Database is unavailable", e);
