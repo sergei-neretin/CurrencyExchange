@@ -1,7 +1,9 @@
 package com.sergeineretin.controllers;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sergeineretin.CurrencyException;
 import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.Utils;
+import com.sergeineretin.Writer;
 import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.services.CurrencyService;
@@ -19,10 +21,13 @@ import java.util.regex.Pattern;
 @WebServlet("/currency/*")
 public class CurrencyServlet extends HttpServlet {
     private CurrencyService service;
+    private Writer writer;
     @Override
     public void init(ServletConfig config) throws ServletException {
         CurrencyDao currencyDao = (CurrencyDao) config.getServletContext().getAttribute("currencyDao");
         service = new CurrencyService(currencyDao);
+        ObjectMapper mapper = (ObjectMapper) config.getServletContext().getAttribute("mapper");
+        writer = new Writer(mapper);
     }
 
     @Override
@@ -30,7 +35,7 @@ public class CurrencyServlet extends HttpServlet {
         try {
             String code = getFormFields(req);
             CurrencyDto currency = service.findByName(code);
-            Utils.write(resp, currency);
+            writer.write(resp, currency);
         } catch (CurrencyException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         } catch (DatabaseUnavailableException e) {

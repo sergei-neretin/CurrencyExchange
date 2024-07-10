@@ -1,8 +1,10 @@
 package com.sergeineretin.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sergeineretin.CurrencyException;
 import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.Utils;
+import com.sergeineretin.Writer;
 import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.services.CurrencyService;
@@ -14,22 +16,26 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.sql.Wrapper;
 import java.util.List;
 
 @WebServlet("/currencies")
 public class CurrenciesServlet extends HttpServlet {
     private CurrencyService service;
+    private Writer writer;
     @Override
     public void init(ServletConfig config) throws ServletException {
         CurrencyDao currencyDao = (CurrencyDao) config.getServletContext().getAttribute("currencyDao");
         service = new CurrencyService(currencyDao);
+        ObjectMapper mapper = (ObjectMapper) config.getServletContext().getAttribute("mapper");
+        writer = new Writer(mapper);
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             List<CurrencyDto> currencies = service.findAll();
-            Utils.write(resp, currencies);
+            writer.write(resp, currencies);
         } catch (DatabaseUnavailableException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (Exception e) {
@@ -50,7 +56,7 @@ public class CurrenciesServlet extends HttpServlet {
                         .sign(sign)
                         .build();
                 currencyDto = service.create(currencyDto);
-                Utils.write(resp, currencyDto);
+                writer.write(resp, currencyDto);
                 resp.setStatus(HttpServletResponse.SC_CREATED);
             } catch (CurrencyException e) {
                 resp.sendError(HttpServletResponse.SC_CONFLICT, e.getMessage());

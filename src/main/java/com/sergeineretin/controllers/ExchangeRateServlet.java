@@ -1,9 +1,11 @@
 package com.sergeineretin.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Splitter;
 import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.ExchangeRateException;
 import com.sergeineretin.Utils;
+import com.sergeineretin.Writer;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.dto.ExchangeRateDto;
@@ -25,12 +27,15 @@ import java.util.regex.Pattern;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
-    ExchangeRateService service;
-
+    private ExchangeRateService service;
+    private Writer writer;
     @Override
     public void init(ServletConfig config) throws ServletException {
         ExchangeRateDao exchangeRateDao = (ExchangeRateDao) config.getServletContext().getAttribute("exchangeRateDao");
         service = new ExchangeRateService(exchangeRateDao);
+
+        ObjectMapper mapper = (ObjectMapper) config.getServletContext().getAttribute("mapper");
+        writer = new Writer(mapper);
     }
 
     @Override
@@ -47,7 +52,7 @@ public class ExchangeRateServlet extends HttpServlet {
         try {
             String[] codes = getFormFields(req);
             ExchangeRateDto exchangeRate = service.findByName(codes[0], codes[1]);
-            Utils.write(resp, exchangeRate);
+            writer.write(resp, exchangeRate);
         } catch (ExchangeRateException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         } catch (DatabaseUnavailableException e) {
@@ -73,7 +78,7 @@ public class ExchangeRateServlet extends HttpServlet {
                     .build();
 
             ExchangeRateDto result  = service.update(exchangeRate);
-            Utils.write(resp, result);
+            writer.write(resp, result);
 
         } catch (DatabaseUnavailableException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());

@@ -25,8 +25,5 @@ public class Utils {
             throw new RuntimeException("Failed to convert URL to URI", e);
         }
     }
-    public static <T> void write(HttpServletResponse resp, T value) throws IOException {
-        PrintWriter writer = resp.getWriter();
-        writer.println(new ObjectMapper().writeValueAsString(value));
-    }
+
 }

@@ -1,9 +1,7 @@
 package com.sergeineretin.controllers;
 
-import com.sergeineretin.CurrencyException;
-import com.sergeineretin.DatabaseUnavailableException;
-import com.sergeineretin.ExchangeRateException;
-import com.sergeineretin.Utils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sergeineretin.*;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.dto.ExchangeRateDto;
@@ -22,18 +20,22 @@ import java.util.List;
 @WebServlet("/exchangeRates")
 public class ExchangeRatesServlet extends HttpServlet {
     ExchangeRateService service;
+    private Writer writer;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         ExchangeRateDao exchangeRateDao = (ExchangeRateDao) config.getServletContext().getAttribute("exchangeRateDao");
         service = new ExchangeRateService(exchangeRateDao);
+
+        ObjectMapper mapper = (ObjectMapper) config.getServletContext().getAttribute("mapper");
+        writer = new Writer(mapper);
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             List<ExchangeRateDto> exchangeRates = service.findAll();
-            Utils.write(resp, exchangeRates);
+            writer.write(resp, exchangeRates);
         } catch (DatabaseUnavailableException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -56,7 +58,7 @@ public class ExchangeRatesServlet extends HttpServlet {
                         .rate(rate)
                         .build();
                 ExchangeRateDto exchangeRate  = service.create(exchangeRateDto);
-                Utils.write(resp, exchangeRate);
+                writer.write(resp, exchangeRate);
                 resp.setStatus(HttpServletResponse.SC_CREATED);
             } catch (DatabaseUnavailableException e) {
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
