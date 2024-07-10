@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class ExchangeRateServlet extends HttpServlet {
@@ -37,34 +39,26 @@ public class ExchangeRateServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String pathInfo = req.getPathInfo();
-        if (pathInfo != null) {
-            try {
-                String string = pathInfo.substring(1);
-                int mid = string.length() / 2;
-                String[] codes = { string.substring(0, mid), string.substring(mid) };
-                ExchangeRateDto exchangeRate = service.findByName(codes[0], codes[1]);
-                Utils.write(resp, exchangeRate);
-
-            } catch (ExchangeRateException e) {
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
-            } catch (DatabaseUnavailableException e) {
-                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-            }
-        } else {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Currency code is missing from the address");
+        try {
+            String[] codes = getFormFields(req);
+            ExchangeRateDto exchangeRate = service.findByName(codes[0], codes[1]);
+            Utils.write(resp, exchangeRate);
+        } catch (ExchangeRateException e) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        } catch (DatabaseUnavailableException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        } catch (RuntimeException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }
 
     @Override
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            String pathInfo = req.getPathInfo();
             String rateString = getParameterMap(req).get("rate");
             BigDecimal rate = new BigDecimal(rateString);
-            String string = pathInfo.substring(1);
-            int mid = string.length() / 2;
-            String[] codes = { string.substring(0, mid), string.substring(mid) };
+            String[] codes = getFormFields(req);
+
             CurrencyDto baseCurrency = CurrencyDto.builder().code(codes[0]).build();
             CurrencyDto targetCurrency = CurrencyDto.builder().code(codes[1]).build();
             ExchangeRateDto exchangeRate = ExchangeRateDto.builder()
@@ -80,11 +74,27 @@ public class ExchangeRateServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (ExchangeRateException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
-        } catch (NullPointerException e) {
+        } catch (RuntimeException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Required form field is missing");
         }
     }
 
+    private String[] getFormFields(HttpServletRequest req) {
+        String codesString = req.getPathInfo().substring(1);
+        Pattern pattern = Pattern.compile("[A-Z]");
+        Matcher matcher = pattern.matcher(codesString);
+        int matches = 0;
+        while (matcher.find()) {
+            matches++;
+        }
+        if (matches == 6) {
+            String baseCode = codesString.substring(0, 3);
+            String targetCode = codesString.substring(3);
+            return new String[] { baseCode, targetCode };
+        } else {
+            throw new RuntimeException("invalid form fields");
+        }
+    }
     public static Map<String, String> getParameterMap(HttpServletRequest request) {
         BufferedReader br = null;
         Map<String, String> dataMap = null;
