@@ -1,17 +1,13 @@
 package com.sergeineretin;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Utils {
+public final class Utils {
+    private Utils () {}
     public static String getDatabasePath() {
         URL resource = Utils.class.getClassLoader().getResource("CurrencyExchange.db");
         if (resource == null) {
