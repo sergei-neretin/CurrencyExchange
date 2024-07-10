@@ -83,11 +83,7 @@ public class ExchangeRateServlet extends HttpServlet {
         String codesString = req.getPathInfo().substring(1);
         Pattern pattern = Pattern.compile("^[A-Z]{6}$");
         Matcher matcher = pattern.matcher(codesString);
-        int matches = 0;
-        while (matcher.find()) {
-            matches++;
-        }
-        if (matches == 1) {
+        if (matcher.find()) {
             String baseCode = codesString.substring(0, 3);
             String targetCode = codesString.substring(3);
             return new String[] { baseCode, targetCode };
