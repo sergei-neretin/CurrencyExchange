@@ -4,7 +4,6 @@ import com.sergeineretin.ExchangeRateException;
 import com.sergeineretin.converters.CurrencyConverter;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.ExchangeDto;
-import com.sergeineretin.model.Currency;
 import com.sergeineretin.model.ExchangeRate;
 
 import java.math.BigDecimal;
