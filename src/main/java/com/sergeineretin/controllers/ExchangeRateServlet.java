@@ -75,7 +75,7 @@ public class ExchangeRateServlet extends HttpServlet {
         } catch (ExchangeRateException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         } catch (RuntimeException e) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Required form field is missing");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }
 
