@@ -27,10 +27,7 @@ public class C3p0DataSource {
     }
 
     public static void close() {
-        if (cpds != null) {
-            cpds.close();
-        }
-
+        cpds.close();
         try {
             DriverManager.deregisterDriver(DriverManager.getDriver("jdbc:sqlite:" + Utils.getDatabasePath()));
         } catch (SQLException e) {
