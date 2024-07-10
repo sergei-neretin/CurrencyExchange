@@ -7,6 +7,7 @@ import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.services.CurrencyService;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@WebServlet("/currency/*")
 public class CurrencyServlet extends HttpServlet {
     private CurrencyService service;
     @Override
