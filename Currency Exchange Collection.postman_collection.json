@@ -1,0 +1,192 @@
+{
+	"info": {
+		"_postman_id": "f7724664-dede-4840-84a5-bbd080f6225c",
+		"name": "Currency Exchange Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36769318"
+	},
+	"item": [
+		{
+			"name": "/currencies",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/currencies",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"currencies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/currency/EUR",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/currency/EUR",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"currency",
+						"EUR"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/currencies",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "name",
+							"value": "Zukkel",
+							"type": "text"
+						},
+						{
+							"key": "code",
+							"value": "ZKL",
+							"type": "text"
+						},
+						{
+							"key": "sign",
+							"value": "zukkel$",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/currencies",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"currencies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/exchangeRates",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchangeRates",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchangeRates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/exchangeRate/USDEUR",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "/exchangeRates",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "baseCurrencyCode",
+							"value": "USD",
+							"type": "text"
+						},
+						{
+							"key": "targetCurrencyCode",
+							"value": "ZKL",
+							"type": "text"
+						},
+						{
+							"key": "rate",
+							"value": "1.23",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/exchangeRates",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchangeRates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/exchangeRate/USDEUR",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "rate",
+							"value": "0.97",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/exchangeRate/USDEUR",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchangeRate",
+						"USDEUR"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/exchange?from=EUR&to=USD&amount=$10",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
