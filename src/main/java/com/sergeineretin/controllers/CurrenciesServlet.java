@@ -3,7 +3,6 @@ package com.sergeineretin.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sergeineretin.CurrencyException;
 import com.sergeineretin.DatabaseUnavailableException;
-import com.sergeineretin.Utils;
 import com.sergeineretin.Writer;
 import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;
@@ -16,7 +15,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.sql.Wrapper;
 import java.util.List;
 
 @WebServlet("/currencies")
@@ -51,7 +49,7 @@ public class CurrenciesServlet extends HttpServlet {
         if (name != null && code != null && sign != null) {
             try {
                 CurrencyDto currencyDto = CurrencyDto.builder()
-                        .fullName(name)
+                        .name(name)
                         .code(code)
                         .sign(sign)
                         .build();

@@ -2,7 +2,6 @@ package com.sergeineretin.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sergeineretin.CurrencyException;
 import com.sergeineretin.DatabaseUnavailableException;
-import com.sergeineretin.Utils;
 import com.sergeineretin.Writer;
 import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;

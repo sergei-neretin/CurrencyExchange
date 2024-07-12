@@ -8,7 +8,7 @@ public class CurrencyConverter {
         return CurrencyDto.builder()
                 .id(entity.getId())
                 .code(entity.getCode())
-                .fullName(entity.getFullName())
+                .name(entity.getFullName())
                 .sign(entity.getSign())
                 .build();
     }
@@ -17,7 +17,7 @@ public class CurrencyConverter {
         return Currency.builder()
                 .id(dto.getId())
                 .code(dto.getCode())
-                .fullName(dto.getFullName())
+                .fullName(dto.getName())
                 .sign(dto.getSign())
                 .build();
     }

@@ -13,8 +13,7 @@ public class C3p0DataSource {
     static {
         try {
             cpds.setDriverClass("org.sqlite.JDBC");
-            String databasePath = Utils.getDatabasePath();
-            cpds.setJdbcUrl("jdbc:sqlite:" + databasePath);
+            cpds.setJdbcUrl("jdbc:sqlite::resource:CurrencyExchange.db");
         } catch (PropertyVetoException e) {
             throw new RuntimeException("Failed to set database driver", e);
         } catch (RuntimeException e) {
@@ -29,7 +28,7 @@ public class C3p0DataSource {
     public static void close() {
         cpds.close();
         try {
-            DriverManager.deregisterDriver(DriverManager.getDriver("jdbc:sqlite:" + Utils.getDatabasePath()));
+            DriverManager.deregisterDriver(DriverManager.getDriver("jdbc:sqlite::resource:CurrencyExchange.db"));
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
