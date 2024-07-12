@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Splitter;
 import com.sergeineretin.DatabaseUnavailableException;
 import com.sergeineretin.ExchangeRateException;
-import com.sergeineretin.Utils;
 import com.sergeineretin.Writer;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.CurrencyDto;
@@ -16,6 +15,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+@Slf4j
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
     private ExchangeRateService service;
@@ -117,13 +117,13 @@ public class ExchangeRateServlet extends HttpServlet {
                     .split(data);
             return dataMap;
         } catch (IOException ex) {
-            //log(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            log.error(ex.getMessage());
         } finally {
             if (br != null) {
                 try {
                     br.close();
                 } catch (IOException ex) {
-                    //Logger.getLogger(Utils.class.getName()).log(Level.WARNING, null, ex);
+                    log.error(ex.getMessage());
                 }
             }
         }
