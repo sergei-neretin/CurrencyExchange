@@ -10,7 +10,7 @@ public class ExchangeRateConverter {
     public static ExchangeRateDto convertToDto(ExchangeRate entity) {
         CurrencyDto baseCurrencyDto = CurrencyConverter.convertToDto(entity.getBaseCurrency());
         CurrencyDto targetCurrencyDto = CurrencyConverter.convertToDto(entity.getTargetCurrency());
-        return new ExchangeRateDto(entity.getID(), baseCurrencyDto, targetCurrencyDto, entity.getRate());
+        return new ExchangeRateDto(entity.getId(), baseCurrencyDto, targetCurrencyDto, entity.getRate());
     }
 
     public static ExchangeRate convertToEntity(ExchangeRateDto dto) {

@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Data
 @Builder
 public class ExchangeRate {
-    Integer ID;
+    Integer id;
     Currency baseCurrency;
     Currency targetCurrency;
     BigDecimal rate;

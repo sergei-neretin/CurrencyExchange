@@ -45,7 +45,7 @@ public class ExchangeService {
         if (optional.isPresent()) {
             ExchangeRate result = optional.get();
             return Optional.of( new ExchangeRate(
-                    result.getID(),
+                    result.getId(),
                     result.getTargetCurrency(),
                     result.getBaseCurrency(),
                     BigDecimal.ONE.divide(result.getRate(), 2, RoundingMode.HALF_UP)));

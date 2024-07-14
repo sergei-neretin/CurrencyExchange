@@ -145,7 +145,7 @@ public class ExchangeRateDao {
                 .baseCurrency(baseCurrency)
                 .targetCurrency(targetCurrency)
                 .rate(rs.getBigDecimal("Rate"))
-                .ID(rs.getInt("ID"))
+                .id(rs.getInt("ID"))
                 .build();
     }
 }

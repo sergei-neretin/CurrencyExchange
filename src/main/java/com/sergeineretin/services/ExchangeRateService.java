@@ -20,7 +20,7 @@ public class ExchangeRateService {
     public List<ExchangeRateDto> findAll() {
         List<ExchangeRate> entities = exchangeRateDao.findAll();
         return entities.stream().map(e -> new ExchangeRateDto(
-                e.getID(),
+                e.getId(),
                 CurrencyConverter.convertToDto(e.getBaseCurrency()),
                 CurrencyConverter.convertToDto(e.getTargetCurrency()),
                 e.getRate())).collect(Collectors.toList());
