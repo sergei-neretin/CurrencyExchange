@@ -47,14 +47,7 @@ public class ExchangeRateService {
 
     public ExchangeRateDto update(ExchangeRateDto exchangeRateDto) {
         ExchangeRate exchangeRate = ExchangeRateConverter.convertToEntity(exchangeRateDto);
-        String baseCode = exchangeRate.getBaseCurrency().getCode();
-        String targetCode = exchangeRate.getTargetCurrency().getCode();
-        if (exchangeRateDao.findByName(baseCode, targetCode).isPresent()) {
-            exchangeRateDao.update(exchangeRate);
-            Optional<ExchangeRate> entity = exchangeRateDao.findByName(baseCode, targetCode);
-            return ExchangeRateConverter.convertToDto(entity.orElse(new ExchangeRate()));
-        } else {
-            throw new ExchangeRateException("Currency pair is absent in the database");
-        }
+        Optional<ExchangeRate> optional =  exchangeRateDao.update(exchangeRate);
+        return ExchangeRateConverter.convertToDto(optional.orElse(new ExchangeRate()));
     }
 }
