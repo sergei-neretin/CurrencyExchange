@@ -1,8 +1,8 @@
 package com.sergeineretin.dao;
 
 import com.sergeineretin.C3p0DataSource;
-import com.sergeineretin.CurrencyException;
-import com.sergeineretin.DatabaseUnavailableException;
+import com.sergeineretin.exceptions.CurrencyException;
+import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.model.Currency;
 import com.sergeineretin.model.NullCurrency;
 import com.sergeineretin.services.CurrencyService;
@@ -35,7 +35,7 @@ public class CurrencyDao {
                 return new NullCurrency();
             }
         } catch (SQLException e) {
-            throw new DatabaseUnavailableException(e.getMessage(), e);
+            throw new DatabaseException(e.getMessage(), e);
         }
     }
     public Currency findById(Long id) {
@@ -52,7 +52,7 @@ public class CurrencyDao {
                 return new NullCurrency();
             }
         } catch (SQLException e) {
-            throw new DatabaseUnavailableException(e.getMessage(), e);
+            throw new DatabaseException(e.getMessage(), e);
         }
     }
     public List<Currency> findAll() {
@@ -68,7 +68,7 @@ public class CurrencyDao {
             rs.close();
             return result;
         } catch (SQLException e) {
-            throw new DatabaseUnavailableException("Database is unavailable", e);
+            throw new DatabaseException("Database is unavailable", e);
         }
     }
 
@@ -84,7 +84,7 @@ public class CurrencyDao {
             if (e.getMessage().contains("UNIQUE")) {
                 throw new CurrencyException("Currency with this code already exists", new Throwable());
             }
-            throw new DatabaseUnavailableException("Database is unavailable", e);
+            throw new DatabaseException("Database is unavailable", e);
         }
     }
 }

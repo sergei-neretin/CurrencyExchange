@@ -5,7 +5,7 @@
   <artifactId>CurrencyExchange</artifactId>
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>untitled9 Maven Webapp</name>
+  <name>CurrencyExchange Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
@@ -69,7 +69,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <build>
-    <finalName>untitled9</finalName>
-  </build>
+
 </project>

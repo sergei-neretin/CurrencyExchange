@@ -1,6 +1,9 @@
 package com.sergeineretin.dao;
 
 import com.sergeineretin.*;
+import com.sergeineretin.exceptions.CurrencyException;
+import com.sergeineretin.exceptions.DatabaseException;
+import com.sergeineretin.exceptions.ExchangeRateException;
 import com.sergeineretin.model.ExchangeRate;
 import com.sergeineretin.model.NullExchangeRate;
 import com.sergeineretin.services.ExchangeRateService;
@@ -35,7 +38,7 @@ public class ExchangeRateDao {
             rs.close();
             return result;
         } catch (Exception e) {
-            throw new DatabaseUnavailableException("Database is unavailable", e);
+            throw new DatabaseException("Database is unavailable", e);
         }
     }
 
@@ -68,7 +71,7 @@ public class ExchangeRateDao {
                 return new NullExchangeRate();
             }
         } catch (SQLException e) {
-            throw new DatabaseUnavailableException("Database is unavailable", e);
+            throw new DatabaseException("Database is unavailable", e);
         }
     }
 
@@ -90,7 +93,7 @@ public class ExchangeRateDao {
             } else if(e.getMessage().contains("SQLITE_CONSTRAINT_TRIGGER")) {
                 throw new CurrencyException("One (or both) currencies from a currency pair do not exist in the database", new Throwable());
             } else {
-                throw new DatabaseUnavailableException("Database is unavailable", e);
+                throw new DatabaseException("Database is unavailable", e);
             }
         }
     }
@@ -106,7 +109,7 @@ public class ExchangeRateDao {
             pstmt.setString(3, exchangeRate.getTargetCurrency().getCode());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            throw new DatabaseUnavailableException("Database is unavailable", e);
+            throw new DatabaseException("Database is unavailable", e);
         }
     }
 }

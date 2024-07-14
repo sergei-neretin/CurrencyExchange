@@ -5,6 +5,9 @@ import com.sergeineretin.*;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.dto.ExchangeRateDto;
+import com.sergeineretin.exceptions.CurrencyException;
+import com.sergeineretin.exceptions.DatabaseException;
+import com.sergeineretin.exceptions.ExchangeRateException;
 import com.sergeineretin.services.ExchangeRateService;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -36,7 +39,7 @@ public class ExchangeRatesServlet extends HttpServlet {
         try {
             List<ExchangeRateDto> exchangeRates = service.findAll();
             writer.write(resp, exchangeRates);
-        } catch (DatabaseUnavailableException e) {
+        } catch (DatabaseException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
@@ -60,7 +63,7 @@ public class ExchangeRatesServlet extends HttpServlet {
                 ExchangeRateDto exchangeRate  = service.create(exchangeRateDto);
                 writer.write(resp, exchangeRate);
                 resp.setStatus(HttpServletResponse.SC_CREATED);
-            } catch (DatabaseUnavailableException e) {
+            } catch (DatabaseException e) {
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             } catch (CurrencyException e) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());

@@ -1,7 +1,7 @@
 package com.sergeineretin.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sergeineretin.CurrencyException;
-import com.sergeineretin.DatabaseUnavailableException;
+import com.sergeineretin.exceptions.CurrencyException;
+import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.Writer;
 import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;
@@ -37,7 +37,7 @@ public class CurrencyServlet extends HttpServlet {
             writer.write(resp, currency);
         } catch (CurrencyException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
-        } catch (DatabaseUnavailableException e) {
+        } catch (DatabaseException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (RuntimeException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());

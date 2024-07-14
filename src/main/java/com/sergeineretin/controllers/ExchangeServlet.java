@@ -1,7 +1,7 @@
 package com.sergeineretin.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sergeineretin.ExchangeRateException;
+import com.sergeineretin.exceptions.ExchangeRateException;
 import com.sergeineretin.Writer;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.CurrencyDto;

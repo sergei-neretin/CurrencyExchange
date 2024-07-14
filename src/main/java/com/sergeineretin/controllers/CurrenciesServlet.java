@@ -1,8 +1,8 @@
 package com.sergeineretin.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sergeineretin.CurrencyException;
-import com.sergeineretin.DatabaseUnavailableException;
+import com.sergeineretin.exceptions.CurrencyException;
+import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.Writer;
 import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;
@@ -34,7 +34,7 @@ public class CurrenciesServlet extends HttpServlet {
         try {
             List<CurrencyDto> currencies = service.findAll();
             writer.write(resp, currencies);
-        } catch (DatabaseUnavailableException e) {
+        } catch (DatabaseException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException();
@@ -58,7 +58,7 @@ public class CurrenciesServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_CREATED);
             } catch (CurrencyException e) {
                 resp.sendError(HttpServletResponse.SC_CONFLICT, e.getMessage());
-            } catch (DatabaseUnavailableException e) {
+            } catch (DatabaseException e) {
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             }
         } else {

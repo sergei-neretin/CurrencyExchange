@@ -1,8 +1,8 @@
 package com.sergeineretin.services;
 
 import com.sergeineretin.converters.CurrencyConverter;
-import com.sergeineretin.CurrencyException;
-import com.sergeineretin.DatabaseUnavailableException;
+import com.sergeineretin.exceptions.CurrencyException;
+import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.model.Currency;
@@ -28,7 +28,7 @@ public class CurrencyService {
                 .build();
     }
 
-    public List<CurrencyDto> findAll() throws DatabaseUnavailableException {
+    public List<CurrencyDto> findAll() throws DatabaseException {
         List<Currency> currencies = currencyDao.findAll();
         return currencies.stream()
                 .map(c -> new CurrencyDto(c.getId(), c.getCode(), c.getFullName(), c.getSign()))

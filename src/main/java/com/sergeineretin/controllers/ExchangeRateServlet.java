@@ -2,8 +2,8 @@ package com.sergeineretin.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Splitter;
-import com.sergeineretin.DatabaseUnavailableException;
-import com.sergeineretin.ExchangeRateException;
+import com.sergeineretin.exceptions.DatabaseException;
+import com.sergeineretin.exceptions.ExchangeRateException;
 import com.sergeineretin.Writer;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.CurrencyDto;
@@ -55,7 +55,7 @@ public class ExchangeRateServlet extends HttpServlet {
             writer.write(resp, exchangeRate);
         } catch (ExchangeRateException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
-        } catch (DatabaseUnavailableException e) {
+        } catch (DatabaseException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (RuntimeException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
@@ -80,7 +80,7 @@ public class ExchangeRateServlet extends HttpServlet {
             ExchangeRateDto result  = service.update(exchangeRate);
             writer.write(resp, result);
 
-        } catch (DatabaseUnavailableException e) {
+        } catch (DatabaseException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (ExchangeRateException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
