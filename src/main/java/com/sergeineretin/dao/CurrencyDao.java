@@ -34,7 +34,7 @@ public class CurrencyDao {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new DatabaseException(e.getMessage(), e);
+            throw new DatabaseException(e.getMessage());
         }
     }
     public List<Currency> findAll() {
@@ -50,7 +50,7 @@ public class CurrencyDao {
             rs.close();
             return result;
         } catch (SQLException e) {
-            throw new DatabaseException("Database is unavailable", e);
+            throw new DatabaseException("Database is unavailable");
         }
     }
 
@@ -64,9 +64,9 @@ public class CurrencyDao {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             if (e.getMessage().contains("UNIQUE")) {
-                throw new CurrencyException("Currency with this code already exists", new Throwable());
+                throw new CurrencyException("Currency with this code already exists");
             }
-            throw new DatabaseException("Database is unavailable", e);
+            throw new DatabaseException("Database is unavailable");
         }
     }
 

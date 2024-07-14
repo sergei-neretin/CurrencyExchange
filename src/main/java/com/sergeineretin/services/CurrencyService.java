@@ -38,7 +38,7 @@ public class CurrencyService {
         if (optional.isPresent()) {
             return CurrencyConverter.convertToDto(optional.get());
         } else {
-            throw new CurrencyException("Currency not found", new Throwable());
+            throw new CurrencyException("Currency not found");
         }
     }
 }

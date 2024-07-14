@@ -31,7 +31,7 @@ public class ExchangeRateService {
         if (result.isPresent()) {
             return ExchangeRateConverter.convertToDto(result.get());
         } else {
-            throw new ExchangeRateException("Exchange rate not found", new Throwable());
+            throw new ExchangeRateException("Exchange rate not found");
         }
 
     }
@@ -54,7 +54,7 @@ public class ExchangeRateService {
             Optional<ExchangeRate> entity = exchangeRateDao.findByName(baseCode, targetCode);
             return ExchangeRateConverter.convertToDto(entity.orElse(new ExchangeRate()));
         } else {
-            throw new ExchangeRateException("Currency pair is absent in the database", new Throwable());
+            throw new ExchangeRateException("Currency pair is absent in the database");
         }
     }
 }

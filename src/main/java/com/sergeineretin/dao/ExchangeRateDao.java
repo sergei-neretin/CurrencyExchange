@@ -34,7 +34,7 @@ public class ExchangeRateDao {
             rs.close();
             return result;
         } catch (Exception e) {
-            throw new DatabaseException("Database is unavailable", e);
+            throw new DatabaseException("Database is unavailable");
         }
     }
 
@@ -51,7 +51,7 @@ public class ExchangeRateDao {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Database is unavailable", e);
+            throw new DatabaseException("Database is unavailable");
         }
     }
 
@@ -66,11 +66,11 @@ public class ExchangeRateDao {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             if (e.getMessage().contains("SQLITE_CONSTRAINT_UNIQUE")) {
-                throw new ExchangeRateException("A currency pair with this code already exists", new Throwable());
+                throw new ExchangeRateException("A currency pair with this code already exists");
             } else if(e.getMessage().contains("SQLITE_CONSTRAINT_TRIGGER")) {
-                throw new CurrencyException("One (or both) currencies from a currency pair do not exist in the database", new Throwable());
+                throw new CurrencyException("One (or both) currencies from a currency pair do not exist in the database");
             } else {
-                throw new DatabaseException("Database is unavailable", e);
+                throw new DatabaseException("Database is unavailable");
             }
         }
     }
@@ -86,7 +86,7 @@ public class ExchangeRateDao {
                 return result;
             } else {
                 conn.rollback();
-                throw new ExchangeRateException("Currency pair is absent in the database", new Throwable());
+                throw new ExchangeRateException("Currency pair is absent in the database");
             }
         } catch (SQLException e) {
             try (Connection conn = C3p0DataSource.getConnection()) {
@@ -94,7 +94,7 @@ public class ExchangeRateDao {
             } catch (SQLException rollbackEx) {
                 throw new RuntimeException("Failed to rollback transaction", rollbackEx);
             }
-            throw new DatabaseException("Database is unavailable", e);
+            throw new DatabaseException("Database is unavailable");
         }
     }
 
@@ -125,11 +125,7 @@ public class ExchangeRateDao {
             pstmt.setString(1, exchangeRate.getBaseCurrency().getCode());
             pstmt.setString(2, exchangeRate.getTargetCurrency().getCode());
             ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return true;
-            } else {
-                return false;
-            }
+            return rs.next();
         }
     }
 

@@ -36,7 +36,7 @@ public class ExchangeService {
                     exchangeDto.getAmount(),
                     exchangeRate.getRate().multiply(exchangeDto.getAmount()));
         } else {
-            throw new ExchangeRateException("Currency pair is absent in the database", new Throwable());
+            throw new ExchangeRateException("Currency pair is absent in the database");
         }
     }
 
