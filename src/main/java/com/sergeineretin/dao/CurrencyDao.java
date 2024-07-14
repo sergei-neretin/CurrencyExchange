@@ -11,15 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class CurrencyDao {
-
-    public CurrencyDao() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public Optional<Currency> findByName(String code) {
         String sql = Statements.CURRENCY_SELECT_BY_CODE;
         try(Connection conn = C3p0DataSource.getConnection();

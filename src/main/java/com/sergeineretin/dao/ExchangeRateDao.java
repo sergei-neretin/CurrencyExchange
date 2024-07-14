@@ -13,13 +13,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class ExchangeRateDao {
-    public ExchangeRateDao() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
     public List<ExchangeRate> findAll() {
         String sql = Statements.EXCHANGE_RATE_SELECT_ALL;
 
