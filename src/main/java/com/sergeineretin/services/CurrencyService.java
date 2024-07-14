@@ -6,9 +6,9 @@ import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.model.Currency;
-import com.sergeineretin.model.NullCurrency;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CurrencyService {
@@ -29,14 +29,14 @@ public class CurrencyService {
     public CurrencyDto create(CurrencyDto currencyDto) {
         Currency currency = CurrencyConverter.convertToEntity(currencyDto);
         currencyDao.create(currency);
-        Currency entity = currencyDao.findByName(currencyDto.getCode());
+        Currency entity = currencyDao.findByName(currencyDto.getCode()).orElse(new Currency());
         return CurrencyConverter.convertToDto(entity);
     }
 
     public CurrencyDto findByName(String code) {
-        Currency entity = currencyDao.findByName(code);
-        if (!(entity instanceof NullCurrency)) {
-            return CurrencyConverter.convertToDto(entity);
+        Optional<Currency> optional = currencyDao.findByName(code);
+        if (optional.isPresent()) {
+            return CurrencyConverter.convertToDto(optional.get());
         } else {
             throw new CurrencyException("Currency not found", new Throwable());
         }

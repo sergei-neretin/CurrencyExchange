@@ -4,11 +4,11 @@ import com.sergeineretin.C3p0DataSource;
 import com.sergeineretin.exceptions.CurrencyException;
 import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.model.Currency;
-import com.sergeineretin.model.NullCurrency;
 
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class CurrencyDao {
 
@@ -20,7 +20,7 @@ public class CurrencyDao {
         }
     }
 
-    public Currency findByName(String code) {
+    public Optional<Currency> findByName(String code) {
         String sql = "SELECT * FROM Currencies WHERE Code = ?;";
         try(Connection conn = C3p0DataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -29,15 +29,15 @@ public class CurrencyDao {
             if (rs.next()) {
                 Currency result = convertResultSet(rs);
                 rs.close();
-                return result;
+                return Optional.of(result);
             } else {
-                return new NullCurrency();
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new DatabaseException(e.getMessage(), e);
         }
     }
-    public Currency findById(Long id) {
+    public Optional<Currency> findById(Long id) {
         String sql = "SELECT * FROM Currencies WHERE ID = ?;";
         try(Connection conn = C3p0DataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -46,9 +46,9 @@ public class CurrencyDao {
             if (rs.next()) {
                 Currency result = convertResultSet(rs);
                 rs.close();
-                return result;
+                return Optional.of(result);
             } else {
-                return new NullCurrency();
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new DatabaseException(e.getMessage(), e);

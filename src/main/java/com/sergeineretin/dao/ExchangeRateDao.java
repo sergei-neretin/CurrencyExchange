@@ -6,11 +6,11 @@ import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.exceptions.ExchangeRateException;
 import com.sergeineretin.model.Currency;
 import com.sergeineretin.model.ExchangeRate;
-import com.sergeineretin.model.NullExchangeRate;
 
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class ExchangeRateDao {
     public ExchangeRateDao() {
@@ -42,7 +42,7 @@ public class ExchangeRateDao {
         }
     }
 
-    public ExchangeRate findByName(String baseCode, String targetCode){
+    public Optional<ExchangeRate> findByName(String baseCode, String targetCode){
         String sql = "SELECT \n" +
                 "    er.ID, \n" +
                 "    er.Rate, \n" +
@@ -66,9 +66,9 @@ public class ExchangeRateDao {
             pstmt.setString(2, targetCode);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                return convertResultSet(rs);
+                return Optional.of(convertResultSet(rs));
             } else {
-                return new NullExchangeRate();
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new DatabaseException("Database is unavailable", e);
