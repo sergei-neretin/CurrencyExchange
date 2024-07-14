@@ -16,7 +16,7 @@ public class ExchangeRateConverter {
     public static ExchangeRate convertToEntity(ExchangeRateDto dto) {
         Currency baseCurrency = CurrencyConverter.convertToEntity(dto.getBaseCurrency());
         Currency targetCurrency = CurrencyConverter.convertToEntity(dto.getTargetCurrency());
-        return new ExchangeRate(dto.getID(), baseCurrency, targetCurrency, dto.getRate());
+        return new ExchangeRate(dto.getId(), baseCurrency, targetCurrency, dto.getRate());
     }
 
     public static ExchangeRate convertToEntity(ExchangeDto dto) {
