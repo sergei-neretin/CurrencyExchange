@@ -21,7 +21,7 @@ public class CurrencyDao {
     }
 
     public Optional<Currency> findByName(String code) {
-        String sql = "SELECT * FROM Currencies WHERE Code = ?;";
+        String sql = Statements.CURRENCY_SELECT_BY_CODE;
         try(Connection conn = C3p0DataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, code);
@@ -37,25 +37,8 @@ public class CurrencyDao {
             throw new DatabaseException(e.getMessage(), e);
         }
     }
-    public Optional<Currency> findById(Long id) {
-        String sql = "SELECT * FROM Currencies WHERE ID = ?;";
-        try(Connection conn = C3p0DataSource.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                Currency result = convertResultSet(rs);
-                rs.close();
-                return Optional.of(result);
-            } else {
-                return Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new DatabaseException(e.getMessage(), e);
-        }
-    }
     public List<Currency> findAll() {
-        String sql = "SELECT * FROM Currencies;";
+        String sql = Statements.CURRENCY_SELECT_ALL;
         try(Connection conn = C3p0DataSource.getConnection();
             Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
@@ -72,7 +55,7 @@ public class CurrencyDao {
     }
 
     public void create(Currency currency) {
-        String sql = "INSERT INTO Currencies(FullName, Code, Sign) VALUES ( ?, ?, ?);";
+        String sql = Statements.CURRENCY_CREATE;
         try(Connection conn = C3p0DataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, currency.getFullName());

@@ -2,6 +2,10 @@ package com.sergeineretin.dao;
 
 public class Statements {
     private Statements() {}
+
+    public static final String CURRENCY_SELECT_BY_CODE = "SELECT Id, Code, FullName, Sign FROM Currencies WHERE Code = ?;";
+    public static final String CURRENCY_SELECT_ALL = "SELECT Id, Code, FullName, Sign FROM Currencies;";
+    public static final String CURRENCY_CREATE = "INSERT INTO Currencies(FullName, Code, Sign) VALUES ( ?, ?, ?);";
     public static final String EXCHANGE_RATE_SELECT_BY_CODE = "SELECT \n" +
             "    er.ID, \n" +
             "    er.Rate, \n" +
