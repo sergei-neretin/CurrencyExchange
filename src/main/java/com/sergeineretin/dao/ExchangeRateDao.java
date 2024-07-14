@@ -21,11 +21,7 @@ public class ExchangeRateDao {
         }
     }
     public List<ExchangeRate> findAll() {
-        String sql = "SELECT er.ID, er.Rate, c.ID AS BaseID, c.FullName AS BaseFullName, c.Code AS BaseCode, c.Sign AS BaseSign, c2.*,\n" +
-                "c2.ID AS TargetID, c2.FullName AS TargetFullName, c2.Code AS TargetCode, c2.Sign AS TargetSign\n" +
-                "from ExchangeRates er \n" +
-                "INNER JOIN Currencies c ON er.BaseCurrencyId = c.ID \n" +
-                "INNER JOIN Currencies c2 ON er.TargetCurrencyId = c2.ID;";
+        String sql = Statements.EXCHANGE_RATE_SELECT_ALL;
 
         try (Connection conn = C3p0DataSource.getConnection();
              Statement stmt = conn.createStatement()) {
@@ -43,23 +39,7 @@ public class ExchangeRateDao {
     }
 
     public Optional<ExchangeRate> findByName(String baseCode, String targetCode){
-        String sql = "SELECT \n" +
-                "    er.ID, \n" +
-                "    er.Rate, \n" +
-                "    c.ID AS BaseID, \n" +
-                "    c.FullName AS BaseFullName, \n" +
-                "    c.Code AS BaseCode, \n" +
-                "    c.Sign AS BaseSign, \n" +
-                "    c2.ID AS TargetID, \n" +
-                "    c2.FullName AS TargetFullName, \n" +
-                "    c2.Code AS TargetCode, \n" +
-                "    c2.Sign AS TargetSign\n" +
-                "FROM \n" +
-                "    ExchangeRates er\n" +
-                "INNER JOIN \n" +
-                "    Currencies c ON er.BaseCurrencyID = c.ID AND c.Code = ?\n" +
-                "INNER JOIN \n" +
-                "    Currencies c2 ON er.TargetCurrencyID = c2.ID AND c2.Code = ?;\n";
+        String sql = Statements.EXCHANGE_RATE_SELECT_BY_CODE;
         try(Connection conn = C3p0DataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, baseCode);
@@ -76,10 +56,7 @@ public class ExchangeRateDao {
     }
 
     public void create(ExchangeRate exchangeRate) {
-        String sql = "INSERT OR ABORT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate)\n" +
-                "VALUES ((SELECT ID FROM Currencies WHERE Code = ?), \n" +
-                "        (SELECT ID FROM Currencies WHERE Code = ?), \n" +
-                "        ?);";
+        String sql = Statements.EXCHANGE_RATE_CREATE;
 
         try(Connection conn = C3p0DataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -98,18 +75,61 @@ public class ExchangeRateDao {
         }
     }
 
-    public void update(ExchangeRate exchangeRate){
-        String sql = "UPDATE ExchangeRates SET Rate = ? WHERE\n" +
-                "BaseCurrencyId = (SELECT ID from Currencies c WHERE c.Code = ?)\n" +
-                "AND TargetCurrencyId = (SELECT ID from Currencies c2 WHERE c2.Code = ?);";
-        try(Connection conn = C3p0DataSource.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    public Optional<ExchangeRate> update(ExchangeRate exchangeRate){
+        try(Connection conn = C3p0DataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+            if (isRecordExist(conn, exchangeRate)) {
+                updateRecord(conn, exchangeRate);
+                Optional<ExchangeRate> result = findRecord(conn, exchangeRate);
+                conn.commit();
+                return result;
+            } else {
+                conn.rollback();
+                throw new ExchangeRateException("Currency pair is absent in the database", new Throwable());
+            }
+        } catch (SQLException e) {
+            try (Connection conn = C3p0DataSource.getConnection()) {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                throw new RuntimeException("Failed to rollback transaction", rollbackEx);
+            }
+            throw new DatabaseException("Database is unavailable", e);
+        }
+    }
+
+    private Optional<ExchangeRate> findRecord(Connection conn, ExchangeRate exchangeRate) throws SQLException{
+        try(PreparedStatement pstmt = conn.prepareStatement(Statements.EXCHANGE_RATE_SELECT_BY_CODE)) {
+            pstmt.setString(1, exchangeRate.getBaseCurrency().getCode());
+            pstmt.setString(2, exchangeRate.getTargetCurrency().getCode());
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return Optional.of(convertResultSet(rs));
+            } else {
+                return Optional.empty();
+            }
+        }
+    }
+
+    private void updateRecord(Connection conn, ExchangeRate exchangeRate) throws SQLException {
+        try(PreparedStatement pstmt = conn.prepareStatement(Statements.EXCHANGE_RATE_UPDATE)) {
             pstmt.setBigDecimal(1, exchangeRate.getRate());
             pstmt.setString(2, exchangeRate.getBaseCurrency().getCode());
             pstmt.setString(3, exchangeRate.getTargetCurrency().getCode());
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DatabaseException("Database is unavailable", e);
+        }
+    }
+
+    private boolean isRecordExist(Connection conn, ExchangeRate exchangeRate) throws SQLException{
+        try(PreparedStatement pstmt = conn.prepareStatement(Statements.EXCHANGE_RATE_SELECT_BY_CODE)) {
+            pstmt.setString(1, exchangeRate.getBaseCurrency().getCode());
+            pstmt.setString(2, exchangeRate.getTargetCurrency().getCode());
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 

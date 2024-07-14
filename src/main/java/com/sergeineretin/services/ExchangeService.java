@@ -1,9 +1,9 @@
 package com.sergeineretin.services;
 
-import com.sergeineretin.exceptions.ExchangeRateException;
 import com.sergeineretin.converters.CurrencyConverter;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.ExchangeDto;
+import com.sergeineretin.exceptions.ExchangeRateException;
 import com.sergeineretin.model.ExchangeRate;
 
 import java.math.BigDecimal;
