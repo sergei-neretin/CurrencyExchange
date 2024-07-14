@@ -4,9 +4,9 @@ import com.sergeineretin.*;
 import com.sergeineretin.exceptions.CurrencyException;
 import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.exceptions.ExchangeRateException;
+import com.sergeineretin.model.Currency;
 import com.sergeineretin.model.ExchangeRate;
 import com.sergeineretin.model.NullExchangeRate;
-import com.sergeineretin.services.ExchangeRateService;
 
 import java.sql.*;
 import java.util.LinkedList;
@@ -32,7 +32,7 @@ public class ExchangeRateDao {
             ResultSet rs = stmt.executeQuery(sql);
             List<ExchangeRate> result = new LinkedList<>();
             while (rs.next()){
-                ExchangeRate exchangeRate = ExchangeRateService.convertResultSet(rs);
+                ExchangeRate exchangeRate = convertResultSet(rs);
                 result.add(exchangeRate);
             }
             rs.close();
@@ -66,7 +66,7 @@ public class ExchangeRateDao {
             pstmt.setString(2, targetCode);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                return ExchangeRateService.convertResultSet(rs);
+                return convertResultSet(rs);
             } else {
                 return new NullExchangeRate();
             }
@@ -111,5 +111,25 @@ public class ExchangeRateDao {
         } catch (SQLException e) {
             throw new DatabaseException("Database is unavailable", e);
         }
+    }
+
+    public ExchangeRate convertResultSet(ResultSet rs) throws SQLException {
+        Currency baseCurrency = new Currency(
+                rs.getLong("BaseID"),
+                rs.getString("BaseCode"),
+                rs.getString("BaseFullName"),
+                rs.getString("BaseSign"));
+        Currency targetCurrency = new Currency(
+                rs.getLong("TargetID"),
+                rs.getString("TargetCode"),
+                rs.getString("TargetFullName"),
+                rs.getString("TargetSign"));
+
+        return ExchangeRate.builder()
+                .baseCurrency(baseCurrency)
+                .targetCurrency(targetCurrency)
+                .rate(rs.getBigDecimal("Rate"))
+                .ID(rs.getInt("ID"))
+                .build();
     }
 }

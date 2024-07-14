@@ -5,7 +5,6 @@ import com.sergeineretin.exceptions.CurrencyException;
 import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.model.Currency;
 import com.sergeineretin.model.NullCurrency;
-import com.sergeineretin.services.CurrencyService;
 
 import java.sql.*;
 import java.util.LinkedList;
@@ -28,7 +27,7 @@ public class CurrencyDao {
             pstmt.setString(1, code);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                Currency result = CurrencyService.convertResultSet(rs);
+                Currency result = convertResultSet(rs);
                 rs.close();
                 return result;
             } else {
@@ -45,7 +44,7 @@ public class CurrencyDao {
             pstmt.setLong(1, id);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                Currency result = CurrencyService.convertResultSet(rs);
+                Currency result = convertResultSet(rs);
                 rs.close();
                 return result;
             } else {
@@ -62,7 +61,7 @@ public class CurrencyDao {
             ResultSet rs = stmt.executeQuery(sql);
             List<Currency> result = new LinkedList<>();
             while (rs.next()) {
-                Currency currencyDto = CurrencyService.convertResultSet(rs);
+                Currency currencyDto = convertResultSet(rs);
                 result.add(currencyDto);
             }
             rs.close();
@@ -86,5 +85,14 @@ public class CurrencyDao {
             }
             throw new DatabaseException("Database is unavailable", e);
         }
+    }
+
+    public Currency convertResultSet(ResultSet rs) throws SQLException {
+        return Currency.builder()
+                .id(rs.getLong("Id"))
+                .code(rs.getString("Code"))
+                .fullName(rs.getString("FullName"))
+                .sign(rs.getString("Sign"))
+                .build();
     }
 }

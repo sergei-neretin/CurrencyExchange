@@ -5,12 +5,9 @@ import com.sergeineretin.converters.CurrencyConverter;
 import com.sergeineretin.converters.ExchangeRateConverter;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.ExchangeRateDto;
-import com.sergeineretin.model.Currency;
 import com.sergeineretin.model.ExchangeRate;
 import com.sergeineretin.model.NullExchangeRate;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,25 +15,6 @@ public class ExchangeRateService {
     private final ExchangeRateDao exchangeRateDao;
     public ExchangeRateService(ExchangeRateDao exchangeRateDao) {
         this.exchangeRateDao = exchangeRateDao;
-    }
-    public static ExchangeRate convertResultSet(ResultSet rs) throws SQLException {
-        Currency baseCurrency = new Currency(
-                rs.getLong("BaseID"),
-                rs.getString("BaseCode"),
-                rs.getString("BaseFullName"),
-                rs.getString("BaseSign"));
-        Currency targetCurrency = new Currency(
-                rs.getLong("TargetID"),
-                rs.getString("TargetCode"),
-                rs.getString("TargetFullName"),
-                rs.getString("TargetSign"));
-
-        return ExchangeRate.builder()
-                .baseCurrency(baseCurrency)
-                .targetCurrency(targetCurrency)
-                .rate(rs.getBigDecimal("Rate"))
-                .ID(rs.getInt("ID"))
-                .build();
     }
 
     public List<ExchangeRateDto> findAll() {
