@@ -1,7 +1,7 @@
 package com.sergeineretin.currencyExchange.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Splitter;
+import com.sergeineretin.currencyExchange.Utils;
 import com.sergeineretin.currencyExchange.Writer;
 import com.sergeineretin.currencyExchange.dao.ExchangeRateDao;
 import com.sergeineretin.currencyExchange.dto.CurrencyDto;
@@ -17,11 +17,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 @Slf4j
@@ -57,7 +54,7 @@ public class ExchangeRateServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         } catch (DatabaseException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }
@@ -65,7 +62,7 @@ public class ExchangeRateServlet extends HttpServlet {
     @Override
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            String rateString = getParameterMap(req).get("rate");
+            String rateString = Utils.getParameterMap(req).get("rate");
             BigDecimal rate = new BigDecimal(rateString);
             String[] codes = getFormFields(req);
 
@@ -84,7 +81,7 @@ public class ExchangeRateServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (ExchangeRateException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }
@@ -98,35 +95,7 @@ public class ExchangeRateServlet extends HttpServlet {
             String targetCode = codesString.substring(3);
             return new String[] { baseCode, targetCode };
         } else {
-            throw new RuntimeException("invalid form fields");
+            throw new IllegalArgumentException("invalid form fields");
         }
-    }
-    public static Map<String, String> getParameterMap(HttpServletRequest request) {
-        BufferedReader br = null;
-        Map<String, String> dataMap = null;
-        try {
-            InputStreamReader reader = new InputStreamReader(request.getInputStream());
-            br = new BufferedReader(reader);
-            String data = br.readLine();
-            dataMap = Splitter.on('&')
-                    .trimResults()
-                    .withKeyValueSeparator(
-                            Splitter.on('=')
-                                    .limit(2)
-                                    .trimResults())
-                    .split(data);
-            return dataMap;
-        } catch (IOException ex) {
-            log.error(ex.getMessage());
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-        }
-        return dataMap;
     }
 }
