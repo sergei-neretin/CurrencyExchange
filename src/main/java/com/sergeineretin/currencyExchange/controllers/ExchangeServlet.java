@@ -13,8 +13,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.SneakyThrows;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 
 @WebServlet("/exchange")
@@ -30,26 +30,35 @@ public class ExchangeServlet extends HttpServlet {
         ObjectMapper mapper = (ObjectMapper) config.getServletContext().getAttribute("mapper");
         writer = new Writer(mapper);
     }
-    @SneakyThrows
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+
+    public static ExchangeDto getExchange(HttpServletRequest req) {
         String baseCurrencyCode = req.getParameter("from");
         String targetCurrencyCode = req.getParameter("to");
-        BigDecimal amount = new BigDecimal(req.getParameter("amount"));
+        String amountString = req.getParameter("amount");
+        if (ServletUtils.validateCode(baseCurrencyCode) && ServletUtils.validateCode(targetCurrencyCode) && ServletUtils.isValidBigDecimal(amountString)) {
+            BigDecimal amount = new BigDecimal(amountString);
+            CurrencyDto baseCurrency = CurrencyDto.builder().code(baseCurrencyCode).build();
+            CurrencyDto targetCurrency = CurrencyDto.builder().code(targetCurrencyCode).build();
+            return ExchangeDto.builder()
+                    .baseCurrency(baseCurrency)
+                    .targetCurrency(targetCurrency)
+                    .amount(amount)
+                    .build();
+        } else {
+            throw new IllegalArgumentException("invalid form fields");
+        }
+    }
 
-        CurrencyDto baseCurrency = CurrencyDto.builder().code(baseCurrencyCode).build();
-        CurrencyDto targetCurrency = CurrencyDto.builder().code(targetCurrencyCode).build();
-        ExchangeDto exchange = ExchangeDto.builder()
-                .baseCurrency(baseCurrency)
-                .targetCurrency(targetCurrency)
-                .amount(amount)
-                .build();
-
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
+            ExchangeDto exchange = getExchange(req);
             ExchangeDto result = service.get(exchange);
             writer.write(resp, result);
         } catch (ExchangeRateException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }
 }

@@ -33,26 +33,26 @@ public class CurrencyServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            String code = getFormFields(req);
+            String code = getCode(req);
             CurrencyDto currency = service.findByCode(code);
             writer.write(resp, currency);
         } catch (CurrencyException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         } catch (DatabaseException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }
 
-    private String getFormFields(HttpServletRequest req) {
+    private String getCode(HttpServletRequest req) {
         String codeString = req.getPathInfo().substring(1);
-        Pattern pattern = Pattern.compile("^[A-Z]{3}$");
+        Pattern pattern = Pattern.compile(ServletUtils.CODE_REGEX);
         Matcher matcher = pattern.matcher(codeString);
         if (matcher.find()) {
             return codeString;
         } else {
-            throw new RuntimeException("Currency code is invalid");
+            throw new IllegalArgumentException("Currency code is invalid");
         }
     }
 }

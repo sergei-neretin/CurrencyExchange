@@ -36,33 +36,37 @@ public class CurrenciesServlet extends HttpServlet {
             writer.write(resp, currencies);
         } catch (DatabaseException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException();
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            CurrencyDto currencyDto = getCurrencyDto(req);
+            currencyDto = service.create(currencyDto);
+            writer.write(resp, currencyDto);
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+        } catch (CurrencyException e) {
+            resp.sendError(HttpServletResponse.SC_CONFLICT, e.getMessage());
+        } catch (DatabaseException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    private CurrencyDto getCurrencyDto(HttpServletRequest req) {
         String name = req.getParameter("name");
         String code = req.getParameter("code");
         String sign = req.getParameter("sign");
-        if (name != null && code != null && sign != null) {
-            try {
-                CurrencyDto currencyDto = CurrencyDto.builder()
-                        .name(name)
-                        .code(code)
-                        .sign(sign)
-                        .build();
-                currencyDto = service.create(currencyDto);
-                writer.write(resp, currencyDto);
-                resp.setStatus(HttpServletResponse.SC_CREATED);
-            } catch (CurrencyException e) {
-                resp.sendError(HttpServletResponse.SC_CONFLICT, e.getMessage());
-            } catch (DatabaseException e) {
-                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-            }
+        if (ServletUtils.isStringValid(name) && ServletUtils.validateCode(code) && ServletUtils.isStringValid(sign)) {
+            return CurrencyDto.builder()
+                    .name(name)
+                    .code(code)
+                    .sign(sign)
+                    .build();
         } else {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Required form field is missing");
+            throw new IllegalArgumentException("invalid form fields");
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.sergeineretin.currencyExchange.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sergeineretin.currencyExchange.Utils;
 import com.sergeineretin.currencyExchange.Writer;
 import com.sergeineretin.currencyExchange.dao.ExchangeRateDao;
 import com.sergeineretin.currencyExchange.dto.CurrencyDto;
@@ -21,6 +20,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 @Slf4j
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
@@ -47,7 +47,7 @@ public class ExchangeRateServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            String[] codes = getFormFields(req);
+            String[] codes = getCodes(req);
             ExchangeRateDto exchangeRate = service.findByCodes(codes[0], codes[1]);
             writer.write(resp, exchangeRate);
         } catch (ExchangeRateException e) {
@@ -62,21 +62,9 @@ public class ExchangeRateServlet extends HttpServlet {
     @Override
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            String rateString = Utils.getParameterMap(req).get("rate");
-            BigDecimal rate = new BigDecimal(rateString);
-            String[] codes = getFormFields(req);
-
-            CurrencyDto baseCurrency = CurrencyDto.builder().code(codes[0]).build();
-            CurrencyDto targetCurrency = CurrencyDto.builder().code(codes[1]).build();
-            ExchangeRateDto exchangeRate = ExchangeRateDto.builder()
-                    .baseCurrency(baseCurrency)
-                    .targetCurrency(targetCurrency)
-                    .rate(rate)
-                    .build();
-
+            ExchangeRateDto exchangeRate = getExchangeRate(req);
             ExchangeRateDto result  = service.update(exchangeRate);
             writer.write(resp, result);
-
         } catch (DatabaseException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (ExchangeRateException e) {
@@ -86,16 +74,38 @@ public class ExchangeRateServlet extends HttpServlet {
         }
     }
 
-    private String[] getFormFields(HttpServletRequest req) {
+    private ExchangeRateDto getExchangeRate(HttpServletRequest req) {
+        BigDecimal rate = getRate(req);
+        String[] codes = getCodes(req);
+
+        CurrencyDto baseCurrency = CurrencyDto.builder().code(codes[0]).build();
+        CurrencyDto targetCurrency = CurrencyDto.builder().code(codes[1]).build();
+        return ExchangeRateDto.builder()
+                .baseCurrency(baseCurrency)
+                .targetCurrency(targetCurrency)
+                .rate(rate)
+                .build();
+    }
+
+    private BigDecimal getRate(HttpServletRequest req) {
+        String rateString = ServletUtils.getParameterMap(req).get("rate");
+        if (ServletUtils.isValidBigDecimal(rateString)) {
+            return new BigDecimal(rateString);
+        } else {
+            throw new IllegalArgumentException("invalid rate");
+        }
+    }
+
+    private String[] getCodes(HttpServletRequest req) {
         String codesString = req.getPathInfo().substring(1);
-        Pattern pattern = Pattern.compile("^[A-Z]{6}$");
+        Pattern pattern = Pattern.compile(ServletUtils.CODES_REGEX);
         Matcher matcher = pattern.matcher(codesString);
         if (matcher.find()) {
             String baseCode = codesString.substring(0, 3);
             String targetCode = codesString.substring(3);
             return new String[] { baseCode, targetCode };
         } else {
-            throw new IllegalArgumentException("invalid form fields");
+            throw new IllegalArgumentException("invalid codes");
         }
     }
 }

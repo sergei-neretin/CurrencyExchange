@@ -29,7 +29,6 @@ public class ExchangeRatesServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         ExchangeRateDao exchangeRateDao = (ExchangeRateDao) config.getServletContext().getAttribute("exchangeRateDao");
         service = new ExchangeRateService(exchangeRateDao);
-
         ObjectMapper mapper = (ObjectMapper) config.getServletContext().getAttribute("mapper");
         writer = new Writer(mapper);
     }
@@ -46,32 +45,38 @@ public class ExchangeRatesServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            ExchangeRateDto exchangeRateDto = getExchangeRate(req);
+            ExchangeRateDto result = service.create(exchangeRateDto);
+            writer.write(resp, result);
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+        } catch (DatabaseException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        } catch (CurrencyException e) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        } catch (ExchangeRateException e) {
+            resp.sendError(HttpServletResponse.SC_CONFLICT, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    private ExchangeRateDto getExchangeRate(HttpServletRequest req) {
         String baseCurrencyCode = req.getParameter("baseCurrencyCode");
         String targetCurrencyCode = req.getParameter("targetCurrencyCode");
         String rateString = req.getParameter("rate");
 
-        if (baseCurrencyCode != null && targetCurrencyCode != null && rateString != null) {
-            try {
-                BigDecimal rate = new BigDecimal(rateString);
-                CurrencyDto baseCurrency = CurrencyDto.builder().code(baseCurrencyCode).build();
-                CurrencyDto targetCurrency = CurrencyDto.builder().code(targetCurrencyCode).build();
-                ExchangeRateDto exchangeRateDto = ExchangeRateDto.builder()
-                        .baseCurrency(baseCurrency)
-                        .targetCurrency(targetCurrency)
-                        .rate(rate)
-                        .build();
-                ExchangeRateDto exchangeRate  = service.create(exchangeRateDto);
-                writer.write(resp, exchangeRate);
-                resp.setStatus(HttpServletResponse.SC_CREATED);
-            } catch (DatabaseException e) {
-                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-            } catch (CurrencyException e) {
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
-            } catch (ExchangeRateException e) {
-                resp.sendError(HttpServletResponse.SC_CONFLICT, e.getMessage());
-            }
+        if (ServletUtils.validateCode(baseCurrencyCode) && ServletUtils.validateCode(targetCurrencyCode) && ServletUtils.isValidBigDecimal(rateString)) {
+            BigDecimal rate = new BigDecimal(rateString);
+            CurrencyDto baseCurrency = CurrencyDto.builder().code(baseCurrencyCode).build();
+            CurrencyDto targetCurrency = CurrencyDto.builder().code(targetCurrencyCode).build();
+            return ExchangeRateDto.builder()
+                    .baseCurrency(baseCurrency)
+                    .targetCurrency(targetCurrency)
+                    .rate(rate)
+                    .build();
         } else {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Required form field is missing");
+            throw new IllegalArgumentException("invalid form fields");
         }
     }
 }
