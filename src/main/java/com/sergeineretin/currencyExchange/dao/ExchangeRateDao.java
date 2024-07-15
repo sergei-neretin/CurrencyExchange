@@ -72,8 +72,7 @@ public class ExchangeRateDao {
         try(Connection conn = C3p0DataSource.getConnection()) {
             conn.setAutoCommit(false);
             conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
-            if (isRecordExist(conn, exchangeRate)) {
-                updateRecord(conn, exchangeRate);
+            if (updateRecord(conn, exchangeRate) != 0) {
                 Optional<ExchangeRate> result = findRecord(conn, exchangeRate);
                 conn.commit();
                 return result;
@@ -104,21 +103,12 @@ public class ExchangeRateDao {
         }
     }
 
-    private void updateRecord(Connection conn, ExchangeRate exchangeRate) throws SQLException {
+    private int updateRecord(Connection conn, ExchangeRate exchangeRate) throws SQLException {
         try(PreparedStatement pstmt = conn.prepareStatement(Statements.EXCHANGE_RATE_UPDATE)) {
             pstmt.setBigDecimal(1, exchangeRate.getRate());
             pstmt.setString(2, exchangeRate.getBaseCurrency().getCode());
             pstmt.setString(3, exchangeRate.getTargetCurrency().getCode());
-            pstmt.executeUpdate();
-        }
-    }
-
-    private boolean isRecordExist(Connection conn, ExchangeRate exchangeRate) throws SQLException{
-        try(PreparedStatement pstmt = conn.prepareStatement(Statements.EXCHANGE_RATE_SELECT_BY_CODE)) {
-            pstmt.setString(1, exchangeRate.getBaseCurrency().getCode());
-            pstmt.setString(2, exchangeRate.getTargetCurrency().getCode());
-            ResultSet rs = pstmt.executeQuery();
-            return rs.next();
+            return pstmt.executeUpdate();
         }
     }
 
