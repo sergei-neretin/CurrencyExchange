@@ -6,6 +6,38 @@ REST API для описания валют и обменных курсов. П
 
 Автор тз - https://github.com/zhukovsd
 
+## Build and Run
+
+In the root directory execute the build using Maven Wrapper:
+
+For Unix:
+
+```
+./mvnw clean package
+```
+
+For Windows:
+
+```
+mvnw.cmd clean package
+```
+
+Deploy the WAR file to your Apache Tomcat.
+
+Copy the WAR file to the `webapps` directory of your Tomcat installation.
+Start your servlet container.
+
+For Unix:
+
+```chatinput
+<tomcat-directory>/bin/startup.sh 
+```
+
+For windows
+
+```chatinput
+<tomcat-directory>\bin\startup.bat
+```
 ## Мотивация проекта
 
 - Знакомство с MVC
