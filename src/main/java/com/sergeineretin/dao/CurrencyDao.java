@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class CurrencyDao {
-    public Optional<Currency> findByName(String code) {
+    public Optional<Currency> findByCode(String code) {
         String sql = Statements.CURRENCY_SELECT_BY_CODE;
         try(Connection conn = C3p0DataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {

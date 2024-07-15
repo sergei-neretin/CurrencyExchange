@@ -2,12 +2,12 @@ package com.sergeineretin.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Splitter;
-import com.sergeineretin.exceptions.DatabaseException;
-import com.sergeineretin.exceptions.ExchangeRateException;
 import com.sergeineretin.Writer;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.CurrencyDto;
 import com.sergeineretin.dto.ExchangeRateDto;
+import com.sergeineretin.exceptions.DatabaseException;
+import com.sergeineretin.exceptions.ExchangeRateException;
 import com.sergeineretin.services.ExchangeRateService;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -51,7 +51,7 @@ public class ExchangeRateServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             String[] codes = getFormFields(req);
-            ExchangeRateDto exchangeRate = service.findByName(codes[0], codes[1]);
+            ExchangeRateDto exchangeRate = service.findByCodes(codes[0], codes[1]);
             writer.write(resp, exchangeRate);
         } catch (ExchangeRateException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());

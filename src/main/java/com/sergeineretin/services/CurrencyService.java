@@ -1,10 +1,10 @@
 package com.sergeineretin.services;
 
 import com.sergeineretin.converters.CurrencyConverter;
-import com.sergeineretin.exceptions.CurrencyException;
-import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;
+import com.sergeineretin.exceptions.CurrencyException;
+import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.model.Currency;
 
 import java.util.List;
@@ -17,8 +17,6 @@ public class CurrencyService {
         this.currencyDao = currencyDao;
     }
 
-
-
     public List<CurrencyDto> findAll() throws DatabaseException {
         List<Currency> currencies = currencyDao.findAll();
         return currencies.stream()
@@ -29,12 +27,12 @@ public class CurrencyService {
     public CurrencyDto create(CurrencyDto currencyDto) {
         Currency currency = CurrencyConverter.convertToEntity(currencyDto);
         currencyDao.create(currency);
-        Currency entity = currencyDao.findByName(currencyDto.getCode()).orElse(new Currency());
+        Currency entity = currencyDao.findByCode(currencyDto.getCode()).orElse(new Currency());
         return CurrencyConverter.convertToDto(entity);
     }
 
-    public CurrencyDto findByName(String code) {
-        Optional<Currency> optional = currencyDao.findByName(code);
+    public CurrencyDto findByCode(String code) {
+        Optional<Currency> optional = currencyDao.findByCode(code);
         if (optional.isPresent()) {
             return CurrencyConverter.convertToDto(optional.get());
         } else {

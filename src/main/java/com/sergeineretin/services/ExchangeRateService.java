@@ -1,10 +1,10 @@
 package com.sergeineretin.services;
 
-import com.sergeineretin.exceptions.ExchangeRateException;
 import com.sergeineretin.converters.CurrencyConverter;
 import com.sergeineretin.converters.ExchangeRateConverter;
 import com.sergeineretin.dao.ExchangeRateDao;
 import com.sergeineretin.dto.ExchangeRateDto;
+import com.sergeineretin.exceptions.ExchangeRateException;
 import com.sergeineretin.model.ExchangeRate;
 
 import java.util.List;
@@ -26,20 +26,19 @@ public class ExchangeRateService {
                 e.getRate())).collect(Collectors.toList());
     }
 
-    public ExchangeRateDto findByName(String baseCode, String targetCode) {
-        Optional<ExchangeRate> result = exchangeRateDao.findByName(baseCode, targetCode);
+    public ExchangeRateDto findByCodes(String baseCode, String targetCode) {
+        Optional<ExchangeRate> result = exchangeRateDao.findByCodes(baseCode, targetCode);
         if (result.isPresent()) {
             return ExchangeRateConverter.convertToDto(result.get());
         } else {
             throw new ExchangeRateException("Exchange rate not found");
         }
-
     }
 
     public ExchangeRateDto create(ExchangeRateDto exchangeRateDto) {
         ExchangeRate exchangeRate = ExchangeRateConverter.convertToEntity(exchangeRateDto);
         exchangeRateDao.create(exchangeRate);
-        Optional<ExchangeRate> entity = exchangeRateDao.findByName(
+        Optional<ExchangeRate> entity = exchangeRateDao.findByCodes(
                 exchangeRate.getBaseCurrency().getCode(),
                 exchangeRate.getTargetCurrency().getCode());
         return ExchangeRateConverter.convertToDto(entity.orElse(new ExchangeRate()));

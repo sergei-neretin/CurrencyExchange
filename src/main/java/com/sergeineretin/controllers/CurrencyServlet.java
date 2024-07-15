@@ -1,10 +1,11 @@
 package com.sergeineretin.controllers;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sergeineretin.exceptions.CurrencyException;
-import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.Writer;
 import com.sergeineretin.dao.CurrencyDao;
 import com.sergeineretin.dto.CurrencyDto;
+import com.sergeineretin.exceptions.CurrencyException;
+import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.services.CurrencyService;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -33,7 +34,7 @@ public class CurrencyServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             String code = getFormFields(req);
-            CurrencyDto currency = service.findByName(code);
+            CurrencyDto currency = service.findByCode(code);
             writer.write(resp, currency);
         } catch (CurrencyException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());

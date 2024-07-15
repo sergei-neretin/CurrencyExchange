@@ -1,6 +1,6 @@
 package com.sergeineretin.dao;
 
-import com.sergeineretin.*;
+import com.sergeineretin.C3p0DataSource;
 import com.sergeineretin.exceptions.CurrencyException;
 import com.sergeineretin.exceptions.DatabaseException;
 import com.sergeineretin.exceptions.ExchangeRateException;
@@ -31,7 +31,7 @@ public class ExchangeRateDao {
         }
     }
 
-    public Optional<ExchangeRate> findByName(String baseCode, String targetCode){
+    public Optional<ExchangeRate> findByCodes(String baseCode, String targetCode) {
         String sql = Statements.EXCHANGE_RATE_SELECT_BY_CODE;
         try(Connection conn = C3p0DataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {

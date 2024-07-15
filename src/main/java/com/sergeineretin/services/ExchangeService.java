@@ -20,7 +20,7 @@ public class ExchangeService {
         String baseCode = exchangeDto.getBaseCurrency().getCode();
         String targetCode = exchangeDto.getTargetCurrency().getCode();
 
-        Optional<ExchangeRate> optional = exchangeRateDao.findByName(baseCode, targetCode);
+        Optional<ExchangeRate> optional = exchangeRateDao.findByCodes(baseCode, targetCode);
         if (!optional.isPresent()) {
             optional = getInverse(baseCode, targetCode);
         }
@@ -41,7 +41,7 @@ public class ExchangeService {
     }
 
     private Optional<ExchangeRate> getInverse(String baseCode, String targetCode) {
-        Optional<ExchangeRate> optional = exchangeRateDao.findByName(targetCode, baseCode);
+        Optional<ExchangeRate> optional = exchangeRateDao.findByCodes(targetCode, baseCode);
         if (optional.isPresent()) {
             ExchangeRate result = optional.get();
             return Optional.of( new ExchangeRate(
@@ -54,8 +54,8 @@ public class ExchangeService {
         }
     }
     private Optional<ExchangeRate> getTransitive(String baseCode, String targetCode) {
-        Optional<ExchangeRate> optional1 = exchangeRateDao.findByName("USD", baseCode);
-        Optional<ExchangeRate> optional2 = exchangeRateDao.findByName("USD", targetCode);
+        Optional<ExchangeRate> optional1 = exchangeRateDao.findByCodes("USD", baseCode);
+        Optional<ExchangeRate> optional2 = exchangeRateDao.findByCodes("USD", targetCode);
         if (optional1.isPresent() && optional2.isPresent()) {
             ExchangeRate exchangeRate1 = optional1.get();
             ExchangeRate exchangeRate2 = optional2.get();
