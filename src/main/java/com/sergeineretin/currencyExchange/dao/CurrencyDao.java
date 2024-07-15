@@ -25,7 +25,7 @@ public class CurrencyDao {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new DatabaseException(e.getMessage());
+            throw new DatabaseException("Database is unavailable");
         }
     }
     public List<Currency> findAll() {
